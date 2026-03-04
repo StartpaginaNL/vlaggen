@@ -2,5 +2,9 @@
 <rect width="900" height="300" fill="#FFD100"/>
 <rect y="300" width="900" height="150" fill="#0033A0"/>
 <rect y="450" width="900" height="150" fill="#D01F3C"/>
-<circle cx="450" cy="250" r="80" fill="#8B4513" opacity="0.3"/>
-</svg>
+<g transform="translate(450,248)">
+<ellipse rx="72" ry="50" fill="#8B4513"/>
+<ellipse rx="55" ry="34" fill="#5C8A3C"/>
+<circle r="28" fill="#FFD700"/>
+<polygon points="0,-62 8,-38 34,-38 14,-22 22,4 0,-10 -22,4 -14,-22 -34,-38 -8,-38" fill="#FFD700"/>
+</g></svg>

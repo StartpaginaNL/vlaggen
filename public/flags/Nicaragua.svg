@@ -2,5 +2,8 @@
 <rect width="900" height="200" fill="#3D85C8"/>
 <rect y="200" width="900" height="200" fill="#FFFFFF"/>
 <rect y="400" width="900" height="200" fill="#3D85C8"/>
-<polygon points="450,230 475,275 525,275 484,302 499,350 450,320 401,350 416,302 375,275 425,275" fill="#3D85C8"/>
-</svg>
+<g transform="translate(450,300)">
+<polygon points="0,-78 14,-40 55,-40 22,-16 34,25 0,2 -34,25 -22,-16 -55,-40 -14,-40" fill="#FECB00"/>
+<circle r="36" fill="#4CAF50"/>
+<circle r="24" fill="#003DA5"/>
+</g></svg>

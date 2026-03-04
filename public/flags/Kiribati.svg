@@ -1,7 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 450">
-<rect width="900" height="270" fill="#CE1126"/>
-<rect y="270" width="900" height="90" fill="#003F87"/>
-<rect y="360" width="900" height="90" fill="#FFFFFF"/>
-<circle cx="200" cy="180" r="80" fill="#FCD116"/>
-<polygon points="200,60 230,150 320,150 248,200 275,290 200,240 125,290 152,200 80,150 170,150" fill="#FCD116"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
+<rect width="900" height="336" fill="#CE1126"/>
+<rect y="336" width="900" height="88" fill="#003F87"/>
+<rect y="424" width="900" height="88" fill="#FFFFFF"/>
+<rect y="512" width="900" height="88" fill="#003F87"/>
+<circle cx="450" cy="168" r="82" fill="#FCD116"/>
+<polygon points="450,65 463,102 502,102 472,124 483,162 450,140 417,162 428,124 398,102 437,102" fill="#FCD116"/>
+<g stroke="#FFFFFF" stroke-width="22" fill="none">
+<path d="M130,336 Q220,280 310,310 Q400,340 490,290 Q580,240 670,270 Q760,300 850,255"/>
+<path d="M80,336 Q180,264 280,296 Q380,328 480,272 Q580,216 680,248 Q780,280 880,230"/>
+<path d="M0,336 Q120,252 240,286 Q360,320 480,258 Q600,196 720,228 Q840,260 900,225"/>
+</g></svg>

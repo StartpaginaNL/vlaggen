@@ -2,5 +2,29 @@
 <rect width="900" height="200" fill="#74ACDF"/>
 <rect y="200" width="900" height="200" fill="#FFFFFF"/>
 <rect y="400" width="900" height="200" fill="#74ACDF"/>
-<circle cx="450" cy="300" r="70" fill="#F6B40E"/>
-</svg>
+<g transform="translate(450,300)">
+<circle r="68" fill="#F6B40E"/>
+<g fill="#F6B40E">
+<polygon points="0,-85 5,-68 -5,-68"/>
+<polygon points="0,85 5,68 -5,68"/>
+<polygon points="-85,0 -68,5 -68,-5"/>
+<polygon points="85,0 68,5 68,-5"/>
+<polygon points="-60,-60 -44,-48 -52,-40"/>
+<polygon points="60,-60 44,-48 52,-40"/>
+<polygon points="-60,60 -44,48 -52,40"/>
+<polygon points="60,60 44,48 52,40"/>
+<polygon points="-80,-18 -64,-8 -70,2"/>
+<polygon points="80,-18 64,-8 70,2"/>
+<polygon points="-80,18 -64,8 -70,-2"/>
+<polygon points="80,18 64,8 70,-2"/>
+<polygon points="-18,-80 -8,-64 2,-70"/>
+<polygon points="18,-80 8,-64 -2,-70"/>
+<polygon points="-18,80 -8,64 2,70"/>
+<polygon points="18,80 8,64 -2,70"/>
+</g>
+<circle r="29" fill="#843511"/>
+<circle r="19" fill="#F6B40E"/>
+<circle cx="-8" cy="-5" r="5" fill="#843511"/>
+<circle cx="8" cy="-5" r="5" fill="#843511"/>
+<path d="M-7,5 Q0,12 7,5" stroke="#843511" stroke-width="3" fill="none"/>
+</g></svg>

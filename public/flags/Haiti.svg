@@ -1,5 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
 <rect width="900" height="300" fill="#00209F"/>
 <rect y="300" width="900" height="300" fill="#D21034"/>
-<rect x="300" y="180" width="300" height="240" fill="#FFFFFF" opacity="0.9"/>
-</svg>
+<rect x="300" y="172" width="300" height="256" fill="#FFFFFF"/>
+<g transform="translate(450,300)">
+<rect x="-62" y="-62" width="124" height="124" fill="#4A7C3F" rx="2"/>
+<rect x="-48" y="-48" width="96" height="96" fill="#4A7C3F"/>
+<path d="M-35,-48 L35,-48 L35,-15 L-35,-15Z" fill="#D4AF37"/>
+<path d="M-35,15 L35,15 L35,48 L-35,48Z" fill="#D4AF37"/>
+<polygon points="0,-72 10,-45 40,-45 16,-26 25,2 0,-14 -25,2 -16,-26 -40,-45 -10,-45" fill="#D4AF37"/>
+</g></svg>

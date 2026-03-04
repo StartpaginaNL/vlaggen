@@ -2,6 +2,23 @@
 <rect width="900" height="200" fill="#C6363C"/>
 <rect y="200" width="900" height="200" fill="#0C4076"/>
 <rect y="400" width="900" height="200" fill="#FFFFFF"/>
-<circle cx="200" cy="300" r="110" fill="#C6363C" stroke="#D4AF37" stroke-width="12"/>
-<polygon points="200,190 225,260 300,260 240,305 265,375 200,330 135,375 160,305 100,260 175,260" fill="#D4AF37"/>
+<g transform="translate(210,300)">
+  <circle r="110" fill="#C6363C" stroke="#D4AF37" stroke-width="14"/>
+  <g fill="#D4AF37">
+    <path d="M0,-82 C-22,-82 -42,-68 -50,-48 L-80,-60 C-76,-35 -62,-14 -42,-4
+             L-42,25 C-42,52 -22,72 0,80 C22,72 42,52 42,25 L42,-4
+             C62,-14 76,-35 80,-60 L50,-48 C42,-68 22,-82 0,-82Z"/>
+    <circle cx="-60" cy="-68" r="20"/>
+    <circle cx="60" cy="-68" r="20"/>
+    <polygon points="-60,-90 -50,-65 -32,-70 -44,-48" fill="#D4AF37"/>
+    <polygon points="60,-90 50,-65 32,-70 44,-48" fill="#D4AF37"/>
+  </g>
+  <rect x="-32" y="-22" width="64" height="75" fill="#C6363C" stroke="#D4AF37" stroke-width="4"/>
+  <rect x="-32" y="-22" width="31" height="36" fill="#FFFFFF"/>
+  <rect x="-1"  y="-22" width="33" height="36" fill="#C6363C"/>
+  <rect x="-32" y="14"  width="31" height="39" fill="#C6363C"/>
+  <rect x="-1"  y="14"  width="33" height="39" fill="#FFFFFF"/>
+  <polygon points="0,-48 9,-26 32,-26 13,-11 20,12 0,-1 -20,12 -13,-11 -32,-26 -9,-26"
+           fill="#D4AF37" transform="translate(0,-74) scale(0.85)"/>
+</g>
 </svg>

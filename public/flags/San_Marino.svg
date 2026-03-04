@@ -1,9 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
 <rect width="900" height="300" fill="#5EB6E4"/>
 <rect y="300" width="900" height="300" fill="#FFFFFF"/>
-<g transform="translate(350,150)">
-<polygon points="100,0 200,100 200,200 0,200 0,100" fill="#5EB6E4" stroke="#009246" stroke-width="8"/>
-<rect x="85" y="80" width="30" height="120" fill="#8B6914"/>
-<ellipse cx="100" cy="70" rx="50" ry="30" fill="#009246"/>
-</g>
-</svg>
+<g transform="translate(450,272)">
+<rect x="-72" y="-132" width="144" height="165" fill="#5EB6E4" stroke="#009246" stroke-width="14" rx="4"/>
+<rect x="-58" y="-118" width="116" height="138" fill="#FFFFFF" stroke="#009246" stroke-width="8"/>
+<path d="M-72,-132 L0,-175 L72,-132" fill="#5EB6E4" stroke="#009246" stroke-width="12"/>
+<rect x="-9" y="-88" width="18" height="112" fill="#8B6914"/>
+<ellipse cx="0" cy="-96" rx="40" ry="24" fill="#009246"/>
+<ellipse cx="-26" cy="-75" rx="19" ry="26" fill="#009246"/>
+<ellipse cx="26" cy="-75" rx="19" ry="26" fill="#009246"/>
+<polygon points="-108,-92 -82,-62 -118,-42" fill="#D4AF37"/>
+<polygon points="108,-92 82,-62 118,-42" fill="#D4AF37"/>
+</g></svg>

@@ -1,6 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
 <rect width="900" height="600" fill="#006C35"/>
-<text x="450" y="280" font-size="100" text-anchor="middle" fill="white" font-family="Arial">لا إله إلا الله</text>
-<text x="450" y="360" font-size="70" text-anchor="middle" fill="white" font-family="Arial">محمد رسول الله</text>
-<rect x="300" y="400" width="300" height="30" fill="white"/>
+<text x="450" y="270" font-size="95" text-anchor="middle" fill="white" font-family="Arial, sans-serif">لا إله إلا الله</text>
+<text x="450" y="360" font-size="68" text-anchor="middle" fill="white" font-family="Arial, sans-serif">محمد رسول الله</text>
+<g fill="white">
+  <rect x="220" y="400" width="460" height="22" rx="4"/>
+  <polygon points="220,411 180,395 180,427"/>
+  <rect x="150" y="402" width="72" height="18" rx="3"/>
+</g>
 </svg>

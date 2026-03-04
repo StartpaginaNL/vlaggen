@@ -1,7 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
 <rect width="900" height="600" fill="#198A00"/>
-<rect x="620" width="90" height="600" fill="#DE0000"/>
-<rect x="710" width="90" height="600" fill="#000000"/>
-<rect x="800" width="100" height="600" fill="#EF7D00"/>
-<circle cx="750" cy="130" r="70" fill="#EF7D00"/>
-</svg>
+<rect x="604" width="92" height="600" fill="#DE0000"/>
+<rect x="696" width="92" height="600" fill="#000000"/>
+<rect x="788" width="112" height="600" fill="#EF7D00"/>
+<g transform="translate(842,132)" fill="#EF7D00">
+<path d="M0,-78 C-22,-78 -38,-62 -38,-42 C-38,-22 -22,-2 0,14 C22,-2 38,-22 38,-42 C38,-62 22,-78 0,-78Z"/>
+<line x1="-48" y1="-52" x2="-78" y2="-72" stroke="#EF7D00" stroke-width="12"/>
+<line x1="48" y1="-52" x2="78" y2="-72" stroke="#EF7D00" stroke-width="12"/>
+<line x1="-50" y1="-12" x2="-82" y2="-8" stroke="#EF7D00" stroke-width="12"/>
+<line x1="50" y1="-12" x2="82" y2="-8" stroke="#EF7D00" stroke-width="12"/>
+</g></svg>

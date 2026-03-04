@@ -2,7 +2,10 @@
 <rect width="900" height="200" fill="#239F40"/>
 <rect y="200" width="900" height="200" fill="#FFFFFF"/>
 <rect y="400" width="900" height="200" fill="#DA0000"/>
-<circle cx="450" cy="300" r="65" fill="#DA0000"/>
-<circle cx="450" cy="300" r="45" fill="#239F40"/>
-<circle cx="450" cy="300" r="25" fill="#FFFFFF"/>
-</svg>
+<text x="450" y="215" font-size="17" text-anchor="middle" fill="white" font-family="serif" letter-spacing="3">الله اکبر الله اکبر الله اکبر الله اکبر الله اکبر الله اکبر الله اکبر</text>
+<text x="450" y="410" font-size="17" text-anchor="middle" fill="#DA0000" font-family="serif" letter-spacing="3">الله اکبر الله اکبر الله اکبر الله اکبر الله اکبر الله اکبر الله اکبر</text>
+<g transform="translate(450,300)">
+<path d="M0,-68 C-18,-68 -32,-55 -32,-38 C-32,-22 -24,-8 -12,2 C-6,7 0,12 0,18 C0,12 6,7 12,2 C24,-8 32,-22 32,-38 C32,-55 18,-68 0,-68Z" fill="#DA0000"/>
+<path d="M-12,2 C-20,12 -22,28 -18,38 L0,48 L18,38 C22,28 20,12 12,2Z" fill="#239F40"/>
+<path d="M-18,38 C-12,52 -5,58 0,60 C5,58 12,52 18,38 L0,48Z" fill="#FFFFFF"/>
+</g></svg>

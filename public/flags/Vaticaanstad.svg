@@ -1,6 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
 <rect width="450" height="600" fill="#FFE000"/>
 <rect x="450" width="450" height="600" fill="#FFFFFF"/>
-<circle cx="650" cy="300" r="80" fill="#FFE000" stroke="#888" stroke-width="8"/>
-<polygon points="650,230 670,280 725,280 680,312 698,362 650,330 602,362 620,312 575,280 630,280" fill="#888"/>
+<g transform="translate(675,300)">
+  <circle r="88" fill="none" stroke="#D4AF37" stroke-width="16"/>
+  <circle r="68" fill="none" stroke="#D4AF37" stroke-width="8"/>
+  <polygon points="0,-75 10,-50 40,-50 16,-32 24,-5 0,-20 -24,-5 -16,-32 -40,-50 -10,-50" fill="#D4AF37"/>
+  <g stroke="#D4AF37" stroke-width="10" fill="none">
+    <line x1="-30" y1="-28" x2="-50" y2="75"/>
+    <line x1="30" y1="-28" x2="50" y2="75"/>
+    <line x1="-55" y1="40" x2="-25" y2="40"/>
+    <line x1="55" y1="40" x2="25" y2="40"/>
+    <line x1="-52" y1="58" x2="-28" y2="58"/>
+    <line x1="52" y1="58" x2="28" y2="58"/>
+  </g>
+  <circle cx="-30" cy="-18" r="10" fill="#D4AF37"/>
+  <circle cx="30" cy="-18" r="10" fill="#D4AF37"/>
+</g>
 </svg>

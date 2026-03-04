@@ -1,14 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
-<rect width="900" height="150" fill="#FFFFFF"/>
-<rect y="150" width="900" height="300" fill="#FFFFFF"/>
-<rect y="450" width="900" height="150" fill="#FFFFFF"/>
-<rect y="150" width="900" height="300" fill="#F7F7F7"/>
 <rect width="900" height="150" fill="#CE1126"/>
+<rect y="150" width="900" height="300" fill="#FFFFFF"/>
 <rect y="450" width="900" height="150" fill="#CE1126"/>
 <g transform="translate(450,300)" fill="#00A651">
-<rect x="-15" y="-100" width="30" height="200"/>
-<rect x="-80" y="-30" width="160" height="30"/>
-<rect x="-60" y="-60" width="120" height="30"/>
-<rect x="-100" y="-10" width="200" height="20"/>
-</g>
-</svg>
+<rect x="-10" y="-105" width="20" height="210"/>
+<path d="M0,-100 C-55,-82 -98,-48 -105,-12 C-95,-28 -55,-34 0,-22 C55,-34 95,-28 105,-12 C98,-48 55,-82 0,-100Z"/>
+<path d="M-105,-12 C-115,16 -104,42 -82,56 C-70,44 -50,32 0,-8 C50,32 70,44 82,56 C104,42 115,16 105,-12 C95,-28 55,-34 0,-22 C-55,-34 -95,-28 -105,-12Z"/>
+<path d="M-82,56 C-62,76 -32,86 0,86 C32,86 62,76 82,56 C62,66 32,72 0,72 C-32,72 -62,66 -82,56Z"/>
+</g></svg>

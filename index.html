@@ -211,6 +211,14 @@
        PERFORMANCE & PRELOADS
   ═══════════════════════════════════════════════ -->
   <link rel="preconnect" href="https://flagquiz.io" />
+
+  <!-- Prevent flash of wrong theme -->
+  <script>
+    (function() {
+      var t = localStorage.getItem("fq_theme") || "dark";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
   <!-- ═══════════════════════════════════════════════

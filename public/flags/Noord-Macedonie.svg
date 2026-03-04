@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
 <rect width="900" height="600" fill="#CE2028"/>
-<circle cx="450" cy="300" r="80" fill="#F7E26B" stroke="#F7E26B"/>
-<line x1="0" y1="0" x2="900" y2="600" stroke="#F7E26B" stroke-width="50"/>
-<line x1="900" y1="0" x2="0" y2="600" stroke="#F7E26B" stroke-width="50"/>
-<line x1="0" y1="300" x2="900" y2="300" stroke="#F7E26B" stroke-width="50"/>
-<line x1="450" y1="0" x2="450" y2="600" stroke="#F7E26B" stroke-width="50"/>
-<circle cx="450" cy="300" r="80" fill="#F7E26B"/>
-<circle cx="450" cy="300" r="50" fill="#CE2028"/>
+<line x1="0" y1="0" x2="900" y2="600" stroke="#F7E26B" stroke-width="48"/>
+<line x1="900" y1="0" x2="0" y2="600" stroke="#F7E26B" stroke-width="48"/>
+<line x1="0" y1="300" x2="900" y2="300" stroke="#F7E26B" stroke-width="48"/>
+<line x1="450" y1="0" x2="450" y2="600" stroke="#F7E26B" stroke-width="48"/>
+<circle cx="450" cy="300" r="118" fill="none" stroke="#F7E26B" stroke-width="42"/>
+<circle cx="450" cy="300" r="58" fill="#F7E26B"/>
+<circle cx="450" cy="300" r="32" fill="#CE2028"/>
 </svg>

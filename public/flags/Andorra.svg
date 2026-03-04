@@ -1,6 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
-<rect width="900" height="600" fill="#0032A0"/>
+<rect width="300" height="600" fill="#0032A0"/>
 <rect x="300" width="300" height="600" fill="#FEDF00"/>
 <rect x="600" width="300" height="600" fill="#D01F3C"/>
-<rect x="375" y="200" width="150" height="200" fill="#B5892B" rx="5"/>
+<g transform="translate(450,295)">
+  <rect x="-62" y="-78" width="124" height="145" fill="#D4AF37" rx="4" stroke="#8B6914" stroke-width="6"/>
+  <rect x="-52" y="-68" width="104" height="125" fill="#FFFFFF" rx="3"/>
+  <rect x="-52" y="-68" width="48" height="58" fill="#0032A0"/>
+  <rect x="4"  y="-68" width="48" height="58" fill="#CE1126"/>
+  <rect x="-52" y="-10" width="48" height="55" fill="#FFCB00"/>
+  <rect x="4"  y="-10" width="48" height="55" fill="#0032A0"/>
+  <text x="0" y="74" font-size="22" text-anchor="middle" fill="#8B6914" font-family="serif" font-style="italic">Virtus Unita Fortior</text>
+</g>
 </svg>

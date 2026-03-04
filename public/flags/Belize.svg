@@ -1,8 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
 <rect width="900" height="600" fill="#003F87"/>
-<rect y="540" width="900" height="60" fill="#CE1126"/>
-<rect width="900" height="60" fill="#CE1126"/>
-<circle cx="450" cy="300" r="160" fill="white"/>
-<circle cx="450" cy="300" r="150" fill="#003F87"/>
-<circle cx="450" cy="300" r="120" fill="#5C8A3C"/>
-</svg>
+<rect width="900" height="65" fill="#CE1126"/>
+<rect y="535" width="900" height="65" fill="#CE1126"/>
+<circle cx="450" cy="300" r="175" fill="#FFFFFF"/>
+<circle cx="450" cy="300" r="163" fill="#003F87"/>
+<circle cx="450" cy="300" r="138" fill="#4A7C3F"/>
+<circle cx="450" cy="300" r="112" fill="#FFFFFF"/>
+<polygon points="450,185 462,222 501,222 470,245 482,282 450,260 418,282 430,245 399,222 438,222" fill="#FFD700"/>
+<rect x="420" y="255" width="60" height="70" fill="#8B4513"/>
+<g fill="#FFD700" stroke="#000" stroke-width="1">
+<rect x="418" y="260" width="20" height="12"/>
+<rect x="460" y="260" width="20" height="12"/>
+<rect x="418" y="280" width="20" height="12"/>
+<rect x="460" y="280" width="20" height="12"/>
+</g></svg>

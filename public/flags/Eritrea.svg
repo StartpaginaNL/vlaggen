@@ -2,5 +2,12 @@
 <polygon points="0,0 900,0 900,300" fill="#4189DD"/>
 <polygon points="0,600 900,300 900,600" fill="#12AD2B"/>
 <polygon points="0,0 500,300 0,600" fill="#D21034"/>
-<circle cx="200" cy="300" r="100" fill="#FFD700" opacity="0.5"/>
-</svg>
+<g transform="translate(188,300)" fill="#FFD700">
+<circle r="88" fill="none" stroke="#FFD700" stroke-width="15"/>
+<g stroke="#FFD700" stroke-width="12">
+<line x1="0" y1="-72" x2="0" y2="72"/>
+<line x1="-72" y1="0" x2="72" y2="0"/>
+<line x1="-51" y1="-51" x2="51" y2="51"/>
+<line x1="51" y1="-51" x2="-51" y2="51"/>
+</g>
+</g></svg>

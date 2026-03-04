@@ -1,6 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
 <rect width="900" height="600" fill="#FFFFFF"/>
-<ellipse cx="450" cy="280" rx="200" ry="130" fill="#D57800"/>
-<rect y="450" width="900" height="60" fill="#4E7B3E"/>
-<rect y="510" width="900" height="60" fill="#4E7B3E"/>
-</svg>
+<path d="M240,155 C215,152 192,158 175,170 C150,188 138,210 134,234
+         C128,265 136,292 150,314 C168,342 195,358 225,368
+         C258,378 295,380 328,372 C362,364 392,346 412,320
+         C432,295 440,264 434,238 C428,213 412,194 390,182
+         C366,169 338,160 308,155 C285,151 262,152 240,155Z"
+      fill="#D57800"/>
+<g fill="#4E7B3E">
+<path d="M260,368 Q300,420 345,440 Q390,460 435,452" stroke="#4E7B3E" stroke-width="20" fill="none" stroke-linecap="round"/>
+<path d="M345,440 L340,490" stroke="#4E7B3E" stroke-width="16" fill="none" stroke-linecap="round"/>
+<path d="M435,452 L430,500" stroke="#4E7B3E" stroke-width="16" fill="none" stroke-linecap="round"/>
+</g></svg>

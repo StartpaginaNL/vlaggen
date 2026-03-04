@@ -1,14 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
 <rect width="900" height="600" fill="#E41E20"/>
-<g fill="#000" transform="translate(450,300)">
-<ellipse cx="0" cy="0" rx="100" ry="130"/>
-<ellipse cx="-80" cy="-120" rx="60" ry="50"/>
-<ellipse cx="80" cy="-120" rx="60" ry="50"/>
-<polygon points="-80,-90 -50,-70 -80,-50" fill="#E41E20"/>
-<polygon points="80,-90 50,-70 80,-50" fill="#E41E20"/>
-<ellipse cx="-65" cy="-125" rx="20" ry="25"/>
-<ellipse cx="65" cy="-125" rx="20" ry="25"/>
-<polygon points="-120,-100 -85,-85 -120,-70" fill="#000"/>
-<polygon points="120,-100 85,-85 120,-70" fill="#000"/>
-</g>
-</svg>
+<g transform="translate(450,295)" fill="#000000">
+<ellipse cx="0" cy="0" rx="105" ry="135"/>
+<ellipse cx="-78" cy="-110" rx="62" ry="52"/>
+<ellipse cx="78" cy="-110" rx="62" ry="52"/>
+<ellipse cx="-62" cy="-118" rx="22" ry="28" fill="#E41E20"/>
+<ellipse cx="62" cy="-118" rx="22" ry="28" fill="#E41E20"/>
+<polygon points="-78,-88 -48,-68 -78,-48" fill="#E41E20"/>
+<polygon points="78,-88 48,-68 78,-48" fill="#E41E20"/>
+<polygon points="-118,-95 -82,-80 -118,-65" fill="#000000"/>
+<polygon points="118,-95 82,-80 118,-65" fill="#000000"/>
+</g></svg>

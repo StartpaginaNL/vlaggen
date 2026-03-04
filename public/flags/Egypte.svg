@@ -2,6 +2,11 @@
 <rect width="900" height="200" fill="#CE1126"/>
 <rect y="200" width="900" height="200" fill="#FFFFFF"/>
 <rect y="400" width="900" height="200" fill="#000000"/>
-<circle cx="450" cy="300" r="60" fill="#C09300"/>
-<rect x="410" y="260" width="80" height="80" fill="#C09300"/>
-</svg>
+<g transform="translate(450,300)" fill="#C09300">
+<path d="M0,-68 L10,-32 L0,-40 L-10,-32Z"/>
+<path d="M0,-40 L18,-40 L22,-14 L0,-6 L-22,-14 L-18,-40Z"/>
+<path d="M0,-6 L28,-6 L28,28 L-28,28 L-28,-6Z"/>
+<path d="M-28,28 L-36,42 L36,42 L28,28Z"/>
+<rect x="-8" y="-58" width="5" height="95"/>
+<rect x="3" y="-58" width="5" height="95"/>
+</g></svg>

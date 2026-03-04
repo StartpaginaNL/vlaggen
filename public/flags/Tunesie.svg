@@ -1,10 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
 <rect width="900" height="600" fill="#E70013"/>
-<rect x="300" y="100" width="300" height="400" fill="#FFFFFF"/>
-<rect x="100" y="200" width="700" height="200" fill="#FFFFFF"/>
-<circle cx="450" cy="300" r="120" fill="#FFFFFF"/>
-<circle cx="450" cy="300" r="100" fill="#E70013"/>
-<circle cx="430" cy="300" r="80" fill="#FFFFFF"/>
-<circle cx="460" cy="300" r="65" fill="#E70013"/>
-<polygon points="520.0,230.0 528.2,253.7 553.3,254.2 533.3,269.3 540.6,293.3 520.0,279.0 499.4,293.3 506.7,269.3 486.7,254.2 511.8,253.7" fill="#E70013"/>
+<circle cx="450" cy="300" r="145" fill="#FFFFFF"/>
+<circle cx="450" cy="300" r="120" fill="#E70013"/>
+<circle cx="428" cy="300" r="96" fill="#FFFFFF"/>
+<circle cx="462" cy="300" r="78" fill="#E70013"/>
+<polygon points="520,234 528,258 553,258 533,273 540,297 520,282 500,297 507,273 487,258 512,258" fill="#E70013"/>
 </svg>

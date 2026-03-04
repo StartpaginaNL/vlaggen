@@ -1,5 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
-<rect y="0" width="900" height="100" fill="#000000"/><rect y="100" width="900" height="100" fill="#FCD116"/><rect y="200" width="900" height="100" fill="#DE3908"/><rect y="300" width="900" height="100" fill="#000000"/><rect y="400" width="900" height="100" fill="#FCD116"/><rect y="500" width="900" height="100" fill="#DE3908"/>
-<circle cx="450" cy="300" r="100" fill="#FFFFFF"/>
-<circle cx="450" cy="310" r="55" fill="#808000"/>
-</svg>
+<rect y="0" width="900" height="100" fill="#000000"/>
+<rect y="100" width="900" height="100" fill="#FCD116"/>
+<rect y="200" width="900" height="100" fill="#DE3908"/>
+<rect y="300" width="900" height="100" fill="#000000"/>
+<rect y="400" width="900" height="100" fill="#FCD116"/>
+<rect y="500" width="900" height="100" fill="#DE3908"/>
+<circle cx="450" cy="300" r="112" fill="#FFFFFF"/>
+<g transform="translate(450,310)">
+<ellipse rx="30" ry="52" fill="#808000"/>
+<ellipse rx="20" ry="28" fill="#C8A050" transform="translate(0,-18)"/>
+<line x1="-38" y1="-22" x2="-58" y2="-18" stroke="#808000" stroke-width="8"/>
+<line x1="38" y1="-22" x2="58" y2="-18" stroke="#808000" stroke-width="8"/>
+<line x1="-30" y1="-8" x2="-52" y2="6" stroke="#808000" stroke-width="6"/>
+<line x1="30" y1="-8" x2="52" y2="6" stroke="#808000" stroke-width="6"/>
+<circle cx="-8" cy="-42" r="5" fill="#FF0000"/>
+<circle cx="8" cy="-42" r="5" fill="#FF0000"/>
+</g></svg>

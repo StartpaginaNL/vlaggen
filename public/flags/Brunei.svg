@@ -1,9 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
 <rect width="900" height="600" fill="#F7E017"/>
-<rect width="900" height="80" fill="#FFFFFF"/>
-<rect y="80" width="900" height="80" fill="#000000"/>
-<rect y="440" width="900" height="80" fill="#000000"/>
-<rect y="520" width="900" height="80" fill="#FFFFFF"/>
-<circle cx="450" cy="300" r="130" fill="#CF1126"/>
-<circle cx="450" cy="300" r="100" fill="#F7E017"/>
-</svg>
+<polygon points="0,0 900,175 0,175" fill="#FFFFFF"/>
+<polygon points="0,425 900,425 0,600" fill="#000000"/>
+<g transform="translate(450,300)">
+<circle r="125" fill="#CF1126"/>
+<circle r="100" fill="#F7E017"/>
+<circle cx="0" cy="-55" r="35" fill="none" stroke="#CF1126" stroke-width="12"/>
+<polygon points="0,-88 9,-62 36,-62 15,-44 23,-18 0,-34 -23,-18 -15,-44 -36,-62 -9,-62" fill="#CF1126"/>
+<path d="M-45,10 L45,10 L45,55 L-45,55Z" fill="#CF1126"/>
+<line x1="-30" y1="30" x2="30" y2="30" stroke="#F7E017" stroke-width="8"/>
+</g></svg>

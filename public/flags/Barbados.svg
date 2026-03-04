@@ -2,8 +2,8 @@
 <rect width="300" height="600" fill="#00267F"/>
 <rect x="300" width="300" height="600" fill="#F7CE00"/>
 <rect x="600" width="300" height="600" fill="#00267F"/>
-<g transform="translate(450,300)">
-<rect x="-15" y="-120" width="30" height="240" fill="#000"/>
-<polygon points="-60,-60 0,-130 60,-60 0,-10" fill="#000"/>
-</g>
-</svg>
+<g transform="translate(450,300)" fill="#000000">
+<rect x="-11" y="-125" width="22" height="250"/>
+<path d="M-55,-78 L0,-145 L55,-78 L40,-78 L40,-32 L-40,-32 L-40,-78Z"/>
+<path d="M-55,-15 L-40,-15 L-40,48 L40,48 L40,-15 L55,-15 L0,62Z"/>
+</g></svg>
