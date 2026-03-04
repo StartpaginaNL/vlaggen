@@ -3,7 +3,67 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vlaggenwijzer</title>
+
+    <!-- Primary SEO -->
+    <title>Vlaggenquiz – Vlaggen Leren, Oefenen & Spelen</title>
+    <meta name="description" content="Vlaggenquiz: leer en oefen de vlaggen van alle 190 landen! Speel solo of doe een 2-speler duel. Hoe sneller je antwoordt, hoe meer punten. Gratis vlaggen spel voor alle leeftijden." />
+    <meta name="keywords" content="vlaggen spel, vlaggen oefenen, vlaggen leren, vlaggenquiz, landen vlaggen, vlaggen quiz, aardrijkskunde quiz, vlaggen herkennen, wereld vlaggen, vlaggen 2 spelers" />
+    <meta name="author" content="Vlaggenquiz" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://vlaggenquiz.nl/" />
+
+    <!-- Open Graph (social sharing) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://vlaggenquiz.nl/" />
+    <meta property="og:title" content="Vlaggenquiz – Vlaggen Leren, Oefenen & Spelen" />
+    <meta property="og:description" content="Leer de vlaggen van alle 190 landen! Solo quiz of 2-speler duel. Sneller antwoorden = meer punten. Gratis vlaggen spel." />
+    <meta property="og:locale" content="nl_NL" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Vlaggenquiz – Vlaggen Leren & Oefenen" />
+    <meta name="twitter:description" content="Test je kennis van wereldvlaggen! 190 landen, timer, punten en klassement." />
+
+    <!-- Structured Data: WebSite + Game -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Vlaggenquiz",
+      "url": "https://vlaggenquiz.nl/",
+      "description": "Leer en oefen de vlaggen van alle 190 landen. Gratis online vlaggen spel voor solo en 2 spelers.",
+      "inLanguage": "nl",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://vlaggenquiz.nl/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Game",
+      "name": "Vlaggenquiz",
+      "url": "https://vlaggenquiz.nl/",
+      "description": "Online vlaggen spel: leer vlaggen oefenen en herkennen. Speel solo of met 2 spelers. 190 landen, timer en topscores.",
+      "genre": ["Educational", "Quiz", "Geography"],
+      "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 2 },
+      "inLanguage": "nl",
+      "isAccessibleForFree": true,
+      "educationalUse": ["practice", "self-assessment"],
+      "about": {
+        "@type": "Thing",
+        "name": "Wereldvlaggen",
+        "description": "Vlaggen van alle 190 landen ter wereld"
+      }
+    }
+    </script>
+
+    <style>
+      body { margin: 0; background: #0a0e1a; }
+      #root { min-height: 100vh; }
+    </style>
   </head>
   <body>
     <div id="root"></div>

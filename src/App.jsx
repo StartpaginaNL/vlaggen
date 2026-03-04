@@ -573,7 +573,7 @@ export default function App() {
   if (mode === "duel-setup") {
     return (
       <div style={st.app}>
-        <div style={st.header}><span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span></div>
+        <div style={st.header}><span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenquiz</span></div>
         <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"80vh",padding:24}}>
           <div style={{...st.box,maxWidth:480,textAlign:"center"}}>
             <div style={{fontSize:48,marginBottom:12}}>⚔️</div>
@@ -603,7 +603,7 @@ export default function App() {
       <div style={st.app}>
         <Confetti />
         {showSave && <SaveScore score={duelScores[winner]} mode="duel" onSave={handleSave} onSkip={() => setShowSave(false)} />}
-        <div style={st.header}><span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span></div>
+        <div style={st.header}><span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenquiz</span></div>
         <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"80vh",padding:24}}>
           <div style={{...st.box,textAlign:"center",maxWidth:520}}>
             <div style={{fontSize:72,marginBottom:8}}>🏆</div>
@@ -641,7 +641,7 @@ export default function App() {
     return (
       <div style={st.app}>
         <div style={st.header}>
-          <span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span>
+          <span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenquiz</span>
           <button style={st.btn(false)} onClick={() => setMode("home")}>Stoppen</button>
         </div>
         {/* Scorebord */}
@@ -710,7 +710,7 @@ export default function App() {
     return (
       <div style={st.app}>
         {showSave && <SaveScore score={score} mode="solo" onSave={handleSave} onSkip={() => setShowSave(false)} />}
-        <div style={st.header}><span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span></div>
+        <div style={st.header}><span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenquiz</span></div>
         <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"80vh",padding:24}}>
           <div style={{...st.box,textAlign:"center",maxWidth:480}}>
             <div style={{fontSize:64,marginBottom:12}}>{pct>=80?"🏆":pct>=50?"🎯":"📚"}</div>
@@ -737,7 +737,7 @@ export default function App() {
     return (
       <div style={st.app}>
         <div style={st.header}>
-          <span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span>
+          <span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenquiz</span>
           <div style={{display:"flex",alignItems:"center",gap:16}}>
             <span style={{color:"#aaa",fontSize:13}}>Vraag {quizIndex+1}/{quizList.length}</span>
             <span style={{fontWeight:800,fontSize:16,color:"#f1c40f"}}>{score.toLocaleString()} pts</span>
@@ -800,7 +800,7 @@ export default function App() {
     <div style={st.app}>
       {showLeaderboard && <Leaderboard records={records} onClose={() => setShowLeaderboard(false)} />}
       <div style={st.header}>
-        <span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span>
+        <span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenquiz</span>
         <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
           {mode === "browse" && <button style={st.btn(true)} onClick={() => setMode("browse")}>Bladeren</button>}
           {mode !== "browse" && <button style={st.btn(false)} onClick={() => setMode("browse")}>Bladeren</button>}
@@ -811,22 +811,47 @@ export default function App() {
       </div>
 
       {mode === "home" && (
-        <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"80vh",padding:24,textAlign:"center"}}>
-          <div style={{fontSize:80,marginBottom:20}}>🌍</div>
-          <h1 style={{fontSize:44,margin:"0 0 14px",fontWeight:800}}>Vlaggenwijzer</h1>
-          <p style={{color:"#aaa",fontSize:17,maxWidth:480,marginBottom:40}}>Leer de vlaggen van 190 landen. Hoe sneller je antwoordt, hoe meer punten je krijgt!</p>
-          <div style={{display:"flex",gap:14,flexWrap:"wrap",justifyContent:"center",marginBottom:32}}>
-            <button style={{...st.btn(false),padding:"14px 28px",fontSize:16,borderRadius:12,background:"rgba(255,255,255,0.08)"}} onClick={() => setMode("browse")}>🗺 Bladeren</button>
-            <button style={{...st.btn(true),padding:"14px 28px",fontSize:16,borderRadius:12}} onClick={startQuiz}>🎯 Solo quiz</button>
+        <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"48px 24px 64px",textAlign:"center"}}>
+          {/* Hero */}
+          <div style={{fontSize:72,marginBottom:16}}>🌍</div>
+          <h1 style={{fontSize:42,margin:"0 0 12px",fontWeight:900,lineHeight:1.1}}>Vlaggenquiz</h1>
+          <p style={{color:"#4a90d9",fontSize:14,fontWeight:600,letterSpacing:2,textTransform:"uppercase",marginBottom:16}}>Vlaggen leren · Vlaggen oefenen · Vlaggen spelen</p>
+          <p style={{color:"#aaa",fontSize:16,maxWidth:520,marginBottom:12,lineHeight:1.6}}>
+            Het gratis <strong style={{color:"#fff"}}>vlaggen spel</strong> voor alle leeftijden. Leer de vlaggen van alle <strong style={{color:"#fff"}}>190 landen</strong> ter wereld — solo of met 2 spelers. Hoe sneller je antwoordt, hoe meer punten!
+          </p>
+          <p style={{color:"#555",fontSize:13,maxWidth:460,marginBottom:36,lineHeight:1.6}}>
+            Perfect voor school, aardrijkskunde oefenen, of gewoon voor de lol. Oefen per continent of doe een willekeurige wereldquiz.
+          </p>
+
+          {/* CTA buttons */}
+          <div style={{display:"flex",gap:14,flexWrap:"wrap",justifyContent:"center",marginBottom:48}}>
+            <button style={{...st.btn(false),padding:"14px 28px",fontSize:16,borderRadius:12,background:"rgba(255,255,255,0.08)"}} onClick={() => setMode("browse")}>🗺 Vlaggen bekijken</button>
+            <button style={{...st.btn(true),padding:"14px 28px",fontSize:16,borderRadius:12}} onClick={startQuiz}>🎯 Solo quiz spelen</button>
             <button style={{padding:"14px 28px",fontSize:16,borderRadius:12,border:"none",cursor:"pointer",fontWeight:700,background:"linear-gradient(135deg,#e94560,#4a90d9)",color:"#fff"}} onClick={() => setMode("duel-setup")}>⚔️ 2-speler duel</button>
           </div>
 
-          {/* Mini leaderboard on home */}
+          {/* Feature cards */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:16,maxWidth:720,width:"100%",marginBottom:48}}>
+            {[
+              {icon:"⏱️", title:"Speel met timer", desc:"20 seconden per vlag. Sneller antwoorden = meer punten. Test hoe goed jij de vlaggen kent!"},
+              {icon:"🌍", title:"190 landen", desc:"Vlaggen oefenen uit Europa, Azië, Afrika, Amerika en Oceanië. Filter per continent."},
+              {icon:"⚔️", title:"2-speler duel", desc:"Speel een vlaggen spel met een vriend. Om beurten raden wie als eerste 2 fouten maakt verliest."},
+              {icon:"🏆", title:"Topscores", desc:"Sla je score op en zie wie de beste is in het klassement. Kan jij de topscore verbreken?"},
+            ].map(f => (
+              <div key={f.title} style={{background:"rgba(255,255,255,0.04)",borderRadius:14,padding:"20px 18px",border:"1px solid rgba(255,255,255,0.07)",textAlign:"left"}}>
+                <div style={{fontSize:28,marginBottom:10}}>{f.icon}</div>
+                <h2 style={{margin:"0 0 6px",fontSize:15,fontWeight:700}}>{f.title}</h2>
+                <p style={{margin:0,color:"#666",fontSize:13,lineHeight:1.5}}>{f.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Mini leaderboard */}
           {records.length > 0 && (
-            <div style={{background:"rgba(255,255,255,0.04)",borderRadius:16,padding:"20px 28px",maxWidth:400,width:"100%",border:"1px solid rgba(255,255,255,0.08)"}}>
-              <div style={{fontSize:13,color:"#aaa",marginBottom:14,fontWeight:600,textTransform:"uppercase",letterSpacing:1}}>🏆 Topscores</div>
+            <div style={{background:"rgba(255,255,255,0.04)",borderRadius:16,padding:"20px 28px",maxWidth:400,width:"100%",border:"1px solid rgba(255,255,255,0.08)",marginBottom:40}}>
+              <div style={{fontSize:13,color:"#aaa",marginBottom:14,fontWeight:700,textTransform:"uppercase",letterSpacing:1}}>🏆 Topscores</div>
               {records.slice(0, 5).map((r, i) => (
-                <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"1px solid rgba(255,255,255,0.05)",fontSize:14}}>
+                <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:"1px solid rgba(255,255,255,0.05)",fontSize:14}}>
                   <span><span style={{color:["#f1c40f","#aaa","#cd7f32"][i]||"#555",fontWeight:700,marginRight:8}}>{i+1}.</span>{r.name} <span style={{color:"#555",fontSize:11}}>({r.mode})</span></span>
                   <span style={{fontWeight:700,color:"#e94560"}}>{r.score.toLocaleString()}</span>
                 </div>
@@ -835,11 +860,24 @@ export default function App() {
             </div>
           )}
 
-          <div style={{marginTop:32,display:"flex",gap:20,color:"#444",flexWrap:"wrap",justifyContent:"center"}}>
-            {CONTINENTEN.filter(c=>c!=="Alle").map(c=>(
-              <span key={c} style={{fontSize:12}}>{FLAGS.filter(f=>f.continent===c).length} {c}</span>
-            ))}
+          {/* Continent stats — keyword-rich content for SEO */}
+          <div style={{maxWidth:600,width:"100%",marginBottom:16}}>
+            <p style={{color:"#333",fontSize:12,marginBottom:12}}>Vlaggen oefenen per continent:</p>
+            <div style={{display:"flex",gap:10,flexWrap:"wrap",justifyContent:"center"}}>
+              {CONTINENTEN.filter(c=>c!=="Alle").map(c=>(
+                <span key={c} style={{fontSize:12,background:"rgba(255,255,255,0.05)",padding:"4px 12px",borderRadius:20,color:"#555",border:"1px solid rgba(255,255,255,0.06)"}}>
+                  {FLAGS.filter(f=>f.continent===c).length} vlaggen {c}
+                </span>
+              ))}
+            </div>
           </div>
+
+          {/* SEO footer text */}
+          <p style={{color:"#2a2a3a",fontSize:11,maxWidth:560,lineHeight:1.6,marginTop:8}}>
+            Vlaggenquiz is een gratis online vlaggen spel om de vlaggen van de wereld te leren en te oefenen.
+            Geschikt voor basisschool, middelbare school en iedereen die aardrijkskunde wil oefenen.
+            Leer vlaggen herkennen van alle 190 landen, oefen per continent en vergelijk je score met anderen.
+          </p>
         </div>
       )}
 
