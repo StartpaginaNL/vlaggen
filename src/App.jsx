@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 
 const FLAGS = [
   {id:1,naam:"Nederland",continent:"Europa",hoofdstad:"Amsterdam",vlag:"/flags/Nederland.svg",symbool:false,kleuren:["rood","wit","blauw"]},
@@ -209,42 +209,124 @@ function getOptions(correct, all) {
   return shuffle([correct, ...shuffle(pool).slice(0, 3)]);
 }
 
-// ── CONFETTI COMPONENT ──
+// Points based on speed: 20s = 10pts, <2s = 100pts
+function calcPoints(timeLeft) {
+  return Math.round(10 + (timeLeft / 20) * 90);
+}
+
+// ── STORAGE HELPERS ──
+function loadRecords() {
+  try { return JSON.parse(localStorage.getItem("vlaggen_records") || "[]"); } catch { return []; }
+}
+function saveRecord(name, score, mode) {
+  const records = loadRecords();
+  records.push({ name, score, mode, date: new Date().toLocaleDateString("nl-NL") });
+  records.sort((a, b) => b.score - a.score);
+  localStorage.setItem("vlaggen_records", JSON.stringify(records.slice(0, 20)));
+}
+
+// ── CONFETTI ──
 function Confetti() {
-  const pieces = Array.from({length: 60}, (_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    delay: Math.random() * 2,
-    duration: 2 + Math.random() * 2,
-    color: ["#e94560","#f1c40f","#27ae60","#4a90d9","#e67e22","#9b59b6"][Math.floor(Math.random()*6)],
-    size: 6 + Math.random() * 8,
+  const pieces = Array.from({length: 70}, (_, i) => ({
+    id: i, x: Math.random() * 100, delay: Math.random() * 2.5,
+    duration: 2 + Math.random() * 2.5,
+    color: ["#e94560","#f1c40f","#27ae60","#4a90d9","#e67e22","#9b59b6","#fff"][Math.floor(Math.random()*7)],
+    size: 5 + Math.random() * 10, rotate: Math.random() * 360,
   }));
   return (
     <div style={{position:"fixed",inset:0,pointerEvents:"none",zIndex:200,overflow:"hidden"}}>
-      <style>{`
-        @keyframes fall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
-      `}</style>
+      <style>{`@keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}`}</style>
       {pieces.map(p => (
-        <div key={p.id} style={{
-          position:"absolute", left:`${p.x}%`, top:0,
-          width:p.size, height:p.size, background:p.color, borderRadius:p.size>10?"50%":"2px",
-          animation:`fall ${p.duration}s ${p.delay}s ease-in forwards`
-        }}/>
+        <div key={p.id} style={{position:"absolute",left:`${p.x}%`,top:0,width:p.size,height:p.size,background:p.color,borderRadius:p.size>10?"50%":"2px",animation:`fall ${p.duration}s ${p.delay}s ease-in forwards`}}/>
       ))}
     </div>
   );
 }
 
-// ── HEARTBEAT / LIVES DISPLAY ──
-function Lives({count, color}) {
+// ── TIMER RING ──
+function TimerRing({ timeLeft, maxTime = 20 }) {
+  const pct = timeLeft / maxTime;
+  const r = 28, circ = 2 * Math.PI * r;
+  const color = pct > 0.5 ? "#27ae60" : pct > 0.25 ? "#f1c40f" : "#e94560";
   return (
-    <span>
-      {[0,1].map(i => (
-        <span key={i} style={{fontSize:20, opacity: i < count ? 1 : 0.2, filter: i < count ? "none" : "grayscale(1)"}}>
-          {i < count ? "❤️" : "🖤"}
-        </span>
-      ))}
-    </span>
+    <div style={{position:"relative",width:72,height:72,flexShrink:0}}>
+      <svg width="72" height="72" style={{transform:"rotate(-90deg)"}}>
+        <circle cx="36" cy="36" r={r} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="5"/>
+        <circle cx="36" cy="36" r={r} fill="none" stroke={color} strokeWidth="5"
+          strokeDasharray={circ} strokeDashoffset={circ * (1 - pct)}
+          style={{transition:"stroke-dashoffset 0.9s linear, stroke 0.3s"}}/>
+      </svg>
+      <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,fontWeight:800,color}}>
+        {timeLeft}
+      </div>
+    </div>
+  );
+}
+
+// ── LIVES ──
+function Lives({count}) {
+  return <span>{[0,1].map(i=><span key={i} style={{fontSize:18,opacity:i<count?1:0.2}}>{i<count?"❤️":"🖤"}</span>)}</span>;
+}
+
+// ── LEADERBOARD ──
+function Leaderboard({ records, onClose }) {
+  const solo = records.filter(r => r.mode === "solo").slice(0, 5);
+  const duel = records.filter(r => r.mode === "duel").slice(0, 5);
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.75)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:150,padding:20}}>
+      <div style={{background:"#0f1629",borderRadius:20,padding:32,maxWidth:540,width:"100%",border:"1px solid rgba(255,255,255,0.12)"}}>
+        <h2 style={{margin:"0 0 24px",fontSize:24,textAlign:"center"}}>🏆 Topscores</h2>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
+          {[["🎯 Solo", solo], ["⚔️ Duel", duel]].map(([label, list]) => (
+            <div key={label}>
+              <div style={{fontWeight:700,fontSize:13,color:"#aaa",marginBottom:10,textTransform:"uppercase",letterSpacing:1}}>{label}</div>
+              {list.length === 0 && <div style={{color:"#555",fontSize:13}}>Nog geen scores</div>}
+              {list.map((r, i) => (
+                <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:"1px solid rgba(255,255,255,0.06)"}}>
+                  <span style={{fontSize:14}}>
+                    <span style={{color:["#f1c40f","#aaa","#cd7f32"][i]||"#666",marginRight:8,fontWeight:700}}>{i+1}.</span>
+                    {r.name}
+                  </span>
+                  <span style={{fontWeight:700,color:"#e94560",fontSize:15}}>{r.score.toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+        <button onClick={onClose} style={{marginTop:24,width:"100%",padding:"12px",borderRadius:10,border:"none",background:"rgba(255,255,255,0.1)",color:"#fff",fontSize:15,fontWeight:600,cursor:"pointer"}}>Sluiten</button>
+      </div>
+    </div>
+  );
+}
+
+// ── SAVE SCORE MODAL ──
+function SaveScore({ score, mode, onSave, onSkip }) {
+  const [name, setName] = useState("");
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.8)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:160,padding:20}}>
+      <div style={{background:"#0f1629",borderRadius:20,padding:32,maxWidth:400,width:"100%",border:"1px solid rgba(255,255,255,0.15)",textAlign:"center"}}>
+        <div style={{fontSize:48,marginBottom:8}}>🎉</div>
+        <h2 style={{margin:"0 0 4px",fontSize:24}}>Score: {score.toLocaleString()}</h2>
+        <p style={{color:"#aaa",marginBottom:24,fontSize:14}}>Sla je score op in het klassement!</p>
+        <input
+          autoFocus
+          style={{width:"100%",padding:"12px 14px",borderRadius:10,border:"1px solid rgba(255,255,255,0.2)",background:"rgba(255,255,255,0.08)",color:"#fff",fontSize:16,outline:"none",marginBottom:16,boxSizing:"border-box"}}
+          placeholder="Jouw naam..."
+          value={name}
+          onChange={e => setName(e.target.value)}
+          onKeyDown={e => e.key==="Enter" && name.trim() && onSave(name.trim())}
+        />
+        <div style={{display:"flex",gap:10}}>
+          <button onClick={() => name.trim() && onSave(name.trim())} disabled={!name.trim()}
+            style={{flex:1,padding:"12px",borderRadius:10,border:"none",background: name.trim()?"#e94560":"rgba(255,255,255,0.1)",color:"#fff",fontSize:15,fontWeight:700,cursor:name.trim()?"pointer":"default"}}>
+            Opslaan ✓
+          </button>
+          <button onClick={onSkip} style={{padding:"12px 20px",borderRadius:10,border:"none",background:"rgba(255,255,255,0.08)",color:"#aaa",fontSize:14,cursor:"pointer"}}>
+            Overslaan
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -253,28 +335,47 @@ export default function App() {
   const [continent, setContinent] = useState("Alle");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [records, setRecords] = useState(loadRecords);
+  const [showSave, setShowSave] = useState(false);
+  const [pendingScore, setPendingScore] = useState(null);
+  const [pendingMode, setPendingMode] = useState(null);
 
-  // Solo quiz state
+  // ── SOLO STATE ──
   const [quizList, setQuizList] = useState([]);
   const [quizIndex, setQuizIndex] = useState(0);
   const [quizOptions, setQuizOptions] = useState([]);
   const [quizAnswer, setQuizAnswer] = useState(null);
   const [score, setScore] = useState(0);
   const [quizDone, setQuizDone] = useState(false);
-  const [countdown, setCountdown] = useState(null);
+  const [countdown, setCountdown] = useState(null); // auto-advance
+  const [timeLeft, setTimeLeft] = useState(20);
+  const [timedOut, setTimedOut] = useState(false);
+  const [lastPoints, setLastPoints] = useState(null);
 
-  // 2-player state
+  // ── DUEL STATE ──
   const [p1Name, setP1Name] = useState("");
   const [p2Name, setP2Name] = useState("");
   const [duelList, setDuelList] = useState([]);
   const [duelIndex, setDuelIndex] = useState(0);
   const [duelOptions, setDuelOptions] = useState([]);
   const [duelAnswer, setDuelAnswer] = useState(null);
-  const [currentPlayer, setCurrentPlayer] = useState(0); // 0 = p1, 1 = p2
-  const [lives, setLives] = useState([2, 2]); // 2 lives each
-  const [scores, setScores] = useState([0, 0]);
+  const [currentPlayer, setCurrentPlayer] = useState(0);
+  const [lives, setLives] = useState([2, 2]);
+  const [duelScores, setDuelScores] = useState([0, 0]);
   const [duelDone, setDuelDone] = useState(false);
   const [winner, setWinner] = useState(null);
+  const [duelTimeLeft, setDuelTimeLeft] = useState(20);
+  const [duelTimedOut, setDuelTimedOut] = useState(false);
+  const [duelLastPoints, setDuelLastPoints] = useState(null);
+
+  const timerRef = useRef(null);
+  const duelTimerRef = useRef(null);
+
+  const pool = useMemo(() =>
+    continent === "Alle" ? FLAGS : FLAGS.filter(f => f.continent === continent),
+    [continent]
+  );
 
   const filtered = useMemo(() => FLAGS.filter(f => {
     const matchC = continent === "Alle" || f.continent === continent;
@@ -282,23 +383,25 @@ export default function App() {
     return matchC && matchS;
   }), [continent, search]);
 
-  const pool = useMemo(() =>
-    continent === "Alle" ? FLAGS : FLAGS.filter(f => f.continent === continent),
-    [continent]
-  );
+  // ── SOLO TIMER ──
+  useEffect(() => {
+    if (mode !== "quiz" || quizAnswer !== null || timedOut || quizList.length === 0) return;
+    clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setTimeLeft(t => {
+        if (t <= 1) {
+          clearInterval(timerRef.current);
+          setTimedOut(true);
+          setQuizAnswer(-1); // sentinel for timeout
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+  }, [mode, quizIndex, quizList.length, quizAnswer, timedOut]);
 
-  // ── SOLO QUIZ LOGIC ──
-  const nextQuestion = useCallback(() => {
-    setCountdown(null);
-    setQuizIndex(prev => {
-      const next = prev + 1;
-      if (next >= quizList.length) { setQuizDone(true); return prev; }
-      setQuizOptions(getOptions(quizList[next], pool));
-      setQuizAnswer(null);
-      return next;
-    });
-  }, [quizList, pool]);
-
+  // ── AUTO ADVANCE after correct solo answer ──
   useEffect(() => {
     if (quizAnswer === null || quizList.length === 0) return;
     if (quizAnswer !== quizList[quizIndex].id) return;
@@ -306,9 +409,56 @@ export default function App() {
     const iv = setInterval(() => setCountdown(c => c > 1 ? c - 1 : null), 1000);
     const to = setTimeout(nextQuestion, 3000);
     return () => { clearInterval(iv); clearTimeout(to); };
-  }, [quizAnswer, quizIndex, quizList, nextQuestion]);
+  }, [quizAnswer, quizIndex, quizList]);
+
+  // ── DUEL TIMER ──
+  useEffect(() => {
+    if (mode !== "duel" || duelAnswer !== null || duelTimedOut || duelList.length === 0 || duelDone) return;
+    clearInterval(duelTimerRef.current);
+    duelTimerRef.current = setInterval(() => {
+      setDuelTimeLeft(t => {
+        if (t <= 1) {
+          clearInterval(duelTimerRef.current);
+          setDuelTimedOut(true);
+          setDuelAnswer(-1);
+          // lose a life
+          setLives(prev => {
+            const nl = [...prev];
+            nl[currentPlayer]--;
+            if (nl[currentPlayer] <= 0) {
+              setWinner(currentPlayer === 0 ? 1 : 0);
+              setDuelDone(true);
+            }
+            return nl;
+          });
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
+    return () => clearInterval(duelTimerRef.current);
+  }, [mode, duelIndex, duelAnswer, duelTimedOut, duelList.length, duelDone, currentPlayer]);
+
+  function nextQuestion() {
+    clearInterval(timerRef.current);
+    setCountdown(null);
+    setTimedOut(false);
+    setLastPoints(null);
+    setQuizIndex(prev => {
+      const next = prev + 1;
+      if (next >= quizList.length) {
+        setQuizDone(true);
+        return prev;
+      }
+      setQuizOptions(getOptions(quizList[next], pool));
+      setQuizAnswer(null);
+      setTimeLeft(20);
+      return next;
+    });
+  }
 
   function startQuiz() {
+    clearInterval(timerRef.current);
     const list = shuffle(pool).slice(0, 20);
     setQuizList(list);
     setQuizIndex(0);
@@ -317,17 +467,28 @@ export default function App() {
     setScore(0);
     setQuizDone(false);
     setCountdown(null);
+    setTimeLeft(20);
+    setTimedOut(false);
+    setLastPoints(null);
     setMode("quiz");
   }
 
   function handleAnswer(flag) {
     if (quizAnswer !== null) return;
-    if (flag.id === quizList[quizIndex].id) setScore(s => s + 1);
+    clearInterval(timerRef.current);
+    const correct = flag.id === quizList[quizIndex].id;
     setQuizAnswer(flag.id);
+    if (correct) {
+      const pts = calcPoints(timeLeft);
+      setLastPoints(pts);
+      setScore(s => s + pts);
+    } else {
+      setLastPoints(0);
+    }
   }
 
-  // ── DUEL LOGIC ──
   function startDuel() {
+    clearInterval(duelTimerRef.current);
     const list = shuffle(FLAGS);
     setDuelList(list);
     setDuelIndex(0);
@@ -335,137 +496,134 @@ export default function App() {
     setDuelAnswer(null);
     setCurrentPlayer(0);
     setLives([2, 2]);
-    setScores([0, 0]);
+    setDuelScores([0, 0]);
     setDuelDone(false);
     setWinner(null);
+    setDuelTimeLeft(20);
+    setDuelTimedOut(false);
+    setDuelLastPoints(null);
     setMode("duel");
   }
 
   function handleDuelAnswer(flag) {
     if (duelAnswer !== null) return;
+    clearInterval(duelTimerRef.current);
     const correct = flag.id === duelList[duelIndex].id;
     setDuelAnswer(flag.id);
-
-    const newScores = [...scores];
     const newLives = [...lives];
-
+    const newScores = [...duelScores];
     if (correct) {
-      newScores[currentPlayer]++;
-      setScores(newScores);
+      const pts = calcPoints(duelTimeLeft);
+      setDuelLastPoints(pts);
+      newScores[currentPlayer] += pts;
+      setDuelScores(newScores);
     } else {
+      setDuelLastPoints(0);
       newLives[currentPlayer]--;
       setLives(newLives);
       if (newLives[currentPlayer] <= 0) {
         setWinner(currentPlayer === 0 ? 1 : 0);
         setDuelDone(true);
-        return;
       }
     }
   }
 
   function nextDuelQuestion() {
+    clearInterval(duelTimerRef.current);
+    setDuelTimedOut(false);
+    setDuelLastPoints(null);
     const next = duelIndex + 1;
     setDuelIndex(next);
     setDuelOptions(getOptions(duelList[next], FLAGS));
     setDuelAnswer(null);
+    setDuelTimeLeft(20);
     setCurrentPlayer(p => p === 0 ? 1 : 0);
   }
 
+  function finishAndSave(finalScore, modeLabel) {
+    setPendingScore(finalScore);
+    setPendingMode(modeLabel);
+    setShowSave(true);
+  }
+
+  function handleSave(name) {
+    saveRecord(name, pendingScore, pendingMode);
+    setRecords(loadRecords());
+    setShowSave(false);
+  }
+
+  const names = [p1Name || "Speler 1", p2Name || "Speler 2"];
+  const playerColors = ["#e94560", "#4a90d9"];
+
   const st = {
-    app: { minHeight:"100vh", background:"linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)", color:"#fff", fontFamily:"'Segoe UI',sans-serif" },
-    header: { padding:"20px 24px", borderBottom:"1px solid rgba(255,255,255,0.1)", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 },
-    logo: { fontSize:28, fontWeight:700, cursor:"pointer", background:"linear-gradient(90deg,#e94560,#4a90d9)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" },
+    app: { minHeight:"100vh", background:"linear-gradient(135deg,#0a0e1a 0%,#111827 50%,#0a1628 100%)", color:"#fff", fontFamily:"'Segoe UI',sans-serif" },
+    header: { padding:"16px 24px", borderBottom:"1px solid rgba(255,255,255,0.08)", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 },
+    logo: { fontSize:26, fontWeight:800, cursor:"pointer", background:"linear-gradient(90deg,#e94560,#4a90d9)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" },
     btn: (a) => ({ padding:"8px 18px", borderRadius:8, border:"none", cursor:"pointer", fontWeight:600, fontSize:14, background: a ? "#e94560" : "rgba(255,255,255,0.1)", color:"#fff", transition:"all .2s" }),
     input: { padding:"8px 14px", borderRadius:8, border:"1px solid rgba(255,255,255,0.2)", background:"rgba(255,255,255,0.08)", color:"#fff", fontSize:14, outline:"none", width:200 },
-    select: { padding:"8px 14px", borderRadius:8, border:"1px solid rgba(255,255,255,0.2)", background:"rgba(30,40,70,0.9)", color:"#fff", fontSize:14, outline:"none" },
+    select: { padding:"8px 14px", borderRadius:8, border:"1px solid rgba(255,255,255,0.2)", background:"rgba(20,30,50,0.9)", color:"#fff", fontSize:14, outline:"none" },
     grid: { display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))", gap:16, padding:"0 24px 32px" },
-    card: { background:"rgba(255,255,255,0.07)", borderRadius:12, padding:16, cursor:"pointer", border:"1px solid rgba(255,255,255,0.1)", transition:"transform .2s" },
-    modal: { position:"fixed", inset:0, background:"rgba(0,0,0,0.7)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:100, padding:20 },
-    box: { background:"#1a1a2e", borderRadius:16, padding:32, maxWidth:420, width:"100%", border:"1px solid rgba(255,255,255,0.15)" },
+    card: { background:"rgba(255,255,255,0.06)", borderRadius:12, padding:16, cursor:"pointer", border:"1px solid rgba(255,255,255,0.08)", transition:"all .2s" },
+    modal: { position:"fixed", inset:0, background:"rgba(0,0,0,0.75)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:100, padding:20 },
+    box: { background:"#0f1629", borderRadius:16, padding:32, maxWidth:420, width:"100%", border:"1px solid rgba(255,255,255,0.12)" },
     tag: (c) => { const m={rood:"#e94560",blauw:"#4a90d9",groen:"#27ae60",geel:"#f1c40f",wit:"#ecf0f1",zwart:"#34495e",oranje:"#e67e22",lichtblauw:"#5dade2",meerkleurig:"#9b59b6"}; return {display:"inline-block",padding:"2px 10px",borderRadius:20,fontSize:11,fontWeight:600,background:m[c]||"#555",color:["wit","geel","lichtblauw"].includes(c)?"#222":"#fff",margin:"2px"}; },
   };
-
-  const names = [p1Name||"Speler 1", p2Name||"Speler 2"];
-  const playerColors = ["#e94560", "#4a90d9"];
 
   // ── DUEL SETUP ──
   if (mode === "duel-setup") {
     return (
       <div style={st.app}>
-        <div style={st.header}>
-          <span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span>
-        </div>
+        <div style={st.header}><span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span></div>
         <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"80vh",padding:24}}>
           <div style={{...st.box,maxWidth:480,textAlign:"center"}}>
-            <div style={{fontSize:48,marginBottom:16}}>⚔️</div>
-            <h2 style={{margin:"0 0 8px",fontSize:28}}>2-speler duel</h2>
-            <p style={{color:"#aaa",marginBottom:32,fontSize:15}}>Speel om beurten. Wie als eerste 2 fouten maakt verliest!</p>
-            <div style={{display:"flex",flexDirection:"column",gap:16,marginBottom:32}}>
-              <div style={{display:"flex",alignItems:"center",gap:12}}>
-                <span style={{fontSize:24}}>🔴</span>
-                <input
-                  style={{...st.input,width:"100%",border:"2px solid #e94560"}}
-                  placeholder="Naam speler 1"
-                  value={p1Name}
-                  onChange={e => setP1Name(e.target.value)}
-                  onKeyDown={e => e.key==="Enter" && startDuel()}
-                />
-              </div>
-              <div style={{display:"flex",alignItems:"center",gap:12}}>
-                <span style={{fontSize:24}}>🔵</span>
-                <input
-                  style={{...st.input,width:"100%",border:"2px solid #4a90d9"}}
-                  placeholder="Naam speler 2"
-                  value={p2Name}
-                  onChange={e => setP2Name(e.target.value)}
-                  onKeyDown={e => e.key==="Enter" && startDuel()}
-                />
-              </div>
+            <div style={{fontSize:48,marginBottom:12}}>⚔️</div>
+            <h2 style={{margin:"0 0 6px",fontSize:28}}>2-speler duel</h2>
+            <p style={{color:"#aaa",marginBottom:8,fontSize:14}}>Speel om beurten. Sneller = meer punten!</p>
+            <p style={{color:"#666",marginBottom:28,fontSize:13}}>Wie als eerste 2 fouten maakt verliest.</p>
+            <div style={{display:"flex",flexDirection:"column",gap:14,marginBottom:28}}>
+              {[["🔴","#e94560",p1Name,setP1Name,"Naam speler 1"],["🔵","#4a90d9",p2Name,setP2Name,"Naam speler 2"]].map(([icon,color,val,set,ph])=>(
+                <div key={ph} style={{display:"flex",alignItems:"center",gap:12}}>
+                  <span style={{fontSize:22}}>{icon}</span>
+                  <input style={{...st.input,width:"100%",border:`2px solid ${color}`}} placeholder={ph} value={val} onChange={e=>set(e.target.value)} onKeyDown={e=>e.key==="Enter"&&startDuel()}/>
+                </div>
+              ))}
             </div>
-            <button style={{...st.btn(true),padding:"14px 40px",fontSize:18,borderRadius:12,width:"100%"}} onClick={startDuel}>
-              🚀 Start duel!
-            </button>
+            <button style={{...st.btn(true),padding:"14px 40px",fontSize:17,borderRadius:12,width:"100%"}} onClick={startDuel}>🚀 Start duel!</button>
           </div>
         </div>
       </div>
     );
   }
 
-  // ── DUEL WINNER ──
+  // ── DUEL WINNER SCREEN ──
   if (mode === "duel" && duelDone && winner !== null) {
     const winnerName = names[winner];
     const loserName = names[winner === 0 ? 1 : 0];
     return (
       <div style={st.app}>
         <Confetti />
-        <div style={st.header}>
-          <span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span>
-        </div>
+        {showSave && <SaveScore score={duelScores[winner]} mode="duel" onSave={handleSave} onSkip={() => setShowSave(false)} />}
+        <div style={st.header}><span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span></div>
         <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"80vh",padding:24}}>
           <div style={{...st.box,textAlign:"center",maxWidth:520}}>
-            <div style={{fontSize:80,marginBottom:8}}>🏆</div>
+            <div style={{fontSize:72,marginBottom:8}}>🏆</div>
             <h2 style={{margin:"0 0 4px",fontSize:36,color:playerColors[winner]}}>{winnerName}</h2>
-            <p style={{color:"#aaa",fontSize:18,marginBottom:8}}>wint het duel!</p>
-            <p style={{color:"#666",fontSize:14,marginBottom:32}}>{loserName} had 2 fouten gemaakt.</p>
-
-            <div style={{display:"flex",justifyContent:"center",gap:32,marginBottom:32}}>
-              {[0,1].map(i => (
-                <div key={i} style={{background:"rgba(255,255,255,0.05)",borderRadius:12,padding:"16px 24px",border:`2px solid ${i===winner?"#f1c40f":"rgba(255,255,255,0.1)"}`}}>
-                  <div style={{fontSize:13,color:"#aaa",marginBottom:4}}>{names[i]}</div>
-                  <div style={{fontSize:28,fontWeight:700,color:playerColors[i]}}>{scores[i]}</div>
-                  <div style={{fontSize:12,color:"#666"}}>goed</div>
-                  <div style={{marginTop:6}}><Lives count={lives[i]} /></div>
+            <p style={{color:"#aaa",fontSize:18,marginBottom:6}}>wint het duel!</p>
+            <p style={{color:"#555",fontSize:13,marginBottom:28}}>{loserName} had 2 fouten gemaakt.</p>
+            <div style={{display:"flex",justifyContent:"center",gap:16,marginBottom:28}}>
+              {[0,1].map(i=>(
+                <div key={i} style={{background:"rgba(255,255,255,0.04)",borderRadius:12,padding:"14px 20px",border:`2px solid ${i===winner?"#f1c40f":"rgba(255,255,255,0.08)"}`}}>
+                  <div style={{fontSize:12,color:"#aaa",marginBottom:4}}>{names[i]}</div>
+                  <div style={{fontSize:28,fontWeight:800,color:playerColors[i]}}>{duelScores[i].toLocaleString()}</div>
+                  <div style={{fontSize:11,color:"#555"}}>punten</div>
+                  <div style={{marginTop:6}}><Lives count={lives[i]}/></div>
                 </div>
               ))}
             </div>
-
-            <div style={{display:"flex",gap:12,justifyContent:"center"}}>
-              <button style={{...st.btn(true),padding:"12px 28px",fontSize:16}} onClick={() => { setMode("duel-setup"); }}>
-                Opnieuw
-              </button>
-              <button style={{...st.btn(false),padding:"12px 28px",fontSize:16}} onClick={() => setMode("home")}>
-                Home
-              </button>
+            <div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap"}}>
+              <button style={{...st.btn(true),padding:"11px 24px",fontSize:15}} onClick={() => finishAndSave(duelScores[winner], "duel")}>💾 Score opslaan</button>
+              <button style={{...st.btn(false),padding:"11px 24px",fontSize:15}} onClick={() => setMode("duel-setup")}>Opnieuw</button>
+              <button style={{...st.btn(false),padding:"11px 24px",fontSize:15}} onClick={() => setMode("home")}>Home</button>
             </div>
           </div>
         </div>
@@ -476,79 +634,68 @@ export default function App() {
   // ── DUEL PLAYING ──
   if (mode === "duel" && duelList.length > 0) {
     const current = duelList[duelIndex];
-    const isCorrect = duelAnswer === current.id;
+    const isCorrect = duelAnswer === current?.id;
+    const isTimeout = duelAnswer === -1;
     const cp = currentPlayer;
+    const nextCp = cp === 0 ? 1 : 0;
     return (
       <div style={st.app}>
         <div style={st.header}>
           <span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span>
           <button style={st.btn(false)} onClick={() => setMode("home")}>Stoppen</button>
         </div>
-
         {/* Scorebord */}
-        <div style={{display:"flex",justifyContent:"center",gap:16,padding:"16px 24px 0"}}>
-          {[0,1].map(i => (
-            <div key={i} style={{
-              flex:1, maxWidth:220,
-              background: i===cp ? `linear-gradient(135deg,${playerColors[i]}22,${playerColors[i]}44)` : "rgba(255,255,255,0.04)",
-              border: `2px solid ${i===cp ? playerColors[i] : "rgba(255,255,255,0.1)"}`,
-              borderRadius:12, padding:"12px 16px",
-              transition:"all .3s"
-            }}>
+        <div style={{display:"flex",justifyContent:"center",gap:12,padding:"14px 24px 0",flexWrap:"wrap"}}>
+          {[0,1].map(i=>(
+            <div key={i} style={{flex:1,maxWidth:220,background:i===cp?`${playerColors[i]}18`:"rgba(255,255,255,0.03)",border:`2px solid ${i===cp?playerColors[i]:"rgba(255,255,255,0.08)"}`,borderRadius:12,padding:"10px 14px",transition:"all .3s"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                <span style={{fontWeight:700,fontSize:15,color: i===cp ? playerColors[i] : "#aaa"}}>
-                  {i===cp ? "▶ " : ""}{names[i]}
-                </span>
-                <Lives count={lives[i]} />
+                <span style={{fontWeight:700,fontSize:14,color:i===cp?playerColors[i]:"#666"}}>{i===cp?"▶ ":""}{names[i]}</span>
+                <Lives count={lives[i]}/>
               </div>
-              <div style={{fontSize:24,fontWeight:700,color:playerColors[i],marginTop:4}}>{scores[i]} <span style={{fontSize:12,color:"#666",fontWeight:400}}>goed</span></div>
+              <div style={{fontSize:22,fontWeight:800,color:playerColors[i],marginTop:2}}>{duelScores[i].toLocaleString()} <span style={{fontSize:11,color:"#555",fontWeight:400}}>pts</span></div>
             </div>
           ))}
         </div>
-
-        <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"24px 24px 40px",gap:24}}>
-          {/* Beurt indicator */}
-          <div style={{background:`${playerColors[cp]}22`,border:`1px solid ${playerColors[cp]}`,borderRadius:20,padding:"6px 20px",fontSize:14,fontWeight:600,color:playerColors[cp]}}>
+        <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"20px 24px 40px",gap:20}}>
+          <div style={{background:`${playerColors[cp]}18`,border:`1px solid ${playerColors[cp]}44`,borderRadius:20,padding:"6px 20px",fontSize:13,fontWeight:700,color:playerColors[cp]}}>
             {names[cp]} is aan de beurt
           </div>
-
-          {/* Vlag */}
-          <div style={{background:"rgba(255,255,255,0.05)",borderRadius:16,padding:24,width:"100%",maxWidth:500,textAlign:"center"}}>
-            <p style={{color:"#aaa",margin:"0 0 14px",fontSize:15}}>Van welk land is deze vlag?</p>
-            <img src={current.vlag} alt="vlag" style={{width:"100%",maxWidth:300,aspectRatio:"3/2",objectFit:"contain",borderRadius:8,background:"rgba(255,255,255,0.05)"}} />
+          {/* Timer + vlag */}
+          <div style={{background:"rgba(255,255,255,0.04)",borderRadius:16,padding:"20px 24px",width:"100%",maxWidth:500,textAlign:"center"}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:16,marginBottom:14}}>
+              <TimerRing timeLeft={duelTimeLeft} />
+              <div style={{textAlign:"left"}}>
+                <div style={{fontSize:11,color:"#666",textTransform:"uppercase",letterSpacing:1}}>Sneller = meer punten</div>
+                <div style={{fontSize:13,color:"#aaa",marginTop:2}}>Max: <strong style={{color:"#fff"}}>100 pts</strong> bij direct antwoord</div>
+              </div>
+            </div>
+            <img src={current.vlag} alt="vlag" style={{width:"100%",maxWidth:280,aspectRatio:"3/2",objectFit:"contain",borderRadius:8,background:"rgba(255,255,255,0.04)"}}/>
           </div>
-
-          {/* Antwoord knoppen */}
+          {/* Opties */}
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,width:"100%",maxWidth:500}}>
-            {duelOptions.map(opt => {
-              let bg = "rgba(255,255,255,0.08)";
-              if (duelAnswer !== null) {
-                if (opt.id === current.id) bg = "#27ae60";
-                else if (opt.id === duelAnswer) bg = "#e94560";
-              }
-              return (
-                <button key={opt.id} onClick={() => handleDuelAnswer(opt)}
-                  style={{padding:"14px 16px",borderRadius:10,border:"1px solid rgba(255,255,255,0.15)",background:bg,color:"#fff",fontSize:15,fontWeight:600,cursor:duelAnswer?"default":"pointer",transition:"background .3s"}}>
+            {duelOptions.map(opt=>{
+              let bg="rgba(255,255,255,0.07)";
+              if(duelAnswer!==null){if(opt.id===current.id)bg="#27ae60";else if(opt.id===duelAnswer)bg="#e94560";}
+              return(
+                <button key={opt.id} onClick={()=>handleDuelAnswer(opt)}
+                  style={{padding:"13px 14px",borderRadius:10,border:"1px solid rgba(255,255,255,0.12)",background:bg,color:"#fff",fontSize:14,fontWeight:600,cursor:duelAnswer?"default":"pointer",transition:"background .25s"}}>
                   {opt.naam}
                 </button>
               );
             })}
           </div>
-
           {/* Feedback */}
           {duelAnswer !== null && !duelDone && (
             <div style={{textAlign:"center"}}>
-              {isCorrect ? (
-                <p style={{color:"#27ae60",fontWeight:700,fontSize:16,margin:"0 0 12px"}}>
-                  ✓ Goed gedaan, {names[cp]}!
-                </p>
+              {isTimeout ? (
+                <p style={{color:"#f1c40f",fontWeight:700,fontSize:15,margin:"0 0 12px"}}>⏰ Tijd om! -{names[cp]} verliest een leven.</p>
+              ) : isCorrect ? (
+                <p style={{color:"#27ae60",fontWeight:700,fontSize:15,margin:"0 0 12px"}}>✓ Goed! <span style={{color:"#f1c40f"}}>+{duelLastPoints} punten</span></p>
               ) : (
-                <p style={{color:"#e94560",fontWeight:700,fontSize:16,margin:"0 0 12px"}}>
-                  ✗ Fout! Het was <strong>{current.naam}</strong>. {lives[cp] > 0 ? `Nog ${lives[cp]} ${lives[cp]===1?"leven":"levens"} over.` : ""}
-                </p>
+                <p style={{color:"#e94560",fontWeight:700,fontSize:15,margin:"0 0 12px"}}>✗ Fout! Het was <strong>{current.naam}</strong>. {lives[cp]>0?`Nog ${lives[cp]} leven${lives[cp]===1?"":"s"}.`:""}</p>
               )}
-              <button style={{...st.btn(true),padding:"12px 32px",fontSize:16}} onClick={nextDuelQuestion}>
-                Volgende → ({names[currentPlayer === 0 ? 1 : 0]} is aan de beurt)
+              <button style={{...st.btn(true),padding:"11px 28px",fontSize:15}} onClick={nextDuelQuestion}>
+                Volgende → ({names[nextCp]} is aan de beurt)
               </button>
             </div>
           )}
@@ -557,21 +704,24 @@ export default function App() {
     );
   }
 
-  // ── SOLO QUIZ DONE ──
+  // ── SOLO DONE ──
   if (mode === "quiz" && quizDone) {
-    const pct = Math.round((score / quizList.length) * 100);
+    const pct = Math.round((score / (quizList.length * 100)) * 100);
     return (
       <div style={st.app}>
+        {showSave && <SaveScore score={score} mode="solo" onSave={handleSave} onSkip={() => setShowSave(false)} />}
         <div style={st.header}><span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span></div>
         <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"80vh",padding:24}}>
           <div style={{...st.box,textAlign:"center",maxWidth:480}}>
-            <div style={{fontSize:64,marginBottom:16}}>{pct>=80?"🏆":pct>=50?"🎯":"📚"}</div>
-            <h2 style={{margin:"0 0 8px",fontSize:28}}>Quiz klaar!</h2>
-            <p style={{color:"#aaa",marginBottom:24}}>Je hebt {score} van de {quizList.length} vragen goed.</p>
-            <div style={{fontSize:48,fontWeight:700,color:"#e94560",marginBottom:24}}>{pct}%</div>
-            <div style={{display:"flex",gap:12,justifyContent:"center"}}>
-              <button style={{...st.btn(true),padding:"12px 28px",fontSize:16}} onClick={startQuiz}>Opnieuw</button>
-              <button style={{...st.btn(false),padding:"12px 28px",fontSize:16}} onClick={() => setMode("home")}>Home</button>
+            <div style={{fontSize:64,marginBottom:12}}>{pct>=80?"🏆":pct>=50?"🎯":"📚"}</div>
+            <h2 style={{margin:"0 0 4px",fontSize:28}}>Quiz klaar!</h2>
+            <p style={{color:"#aaa",marginBottom:6,fontSize:15}}>Totale score: <strong style={{color:"#fff",fontSize:18}}>{score.toLocaleString()} punten</strong></p>
+            <p style={{color:"#555",marginBottom:24,fontSize:13}}>Max mogelijk: {(quizList.length * 100).toLocaleString()} punten</p>
+            <div style={{fontSize:44,fontWeight:800,color:"#e94560",marginBottom:28}}>{pct}%</div>
+            <div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap"}}>
+              <button style={{...st.btn(true),padding:"11px 22px",fontSize:15}} onClick={() => finishAndSave(score, "solo")}>💾 Score opslaan</button>
+              <button style={{...st.btn(false),padding:"11px 22px",fontSize:15}} onClick={startQuiz}>Opnieuw</button>
+              <button style={{...st.btn(false),padding:"11px 22px",fontSize:15}} onClick={() => setMode("home")}>Home</button>
             </div>
           </div>
         </div>
@@ -583,31 +733,42 @@ export default function App() {
   if (mode === "quiz" && quizList.length > 0) {
     const current = quizList[quizIndex];
     const isCorrect = quizAnswer === current.id;
+    const isTimeout = quizAnswer === -1;
     return (
       <div style={st.app}>
         <div style={st.header}>
           <span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span>
           <div style={{display:"flex",alignItems:"center",gap:16}}>
-            <span style={{color:"#aaa",fontSize:14}}>Vraag {quizIndex+1}/{quizList.length}</span>
-            <span style={{color:"#e94560",fontWeight:700}}>Score: {score}</span>
+            <span style={{color:"#aaa",fontSize:13}}>Vraag {quizIndex+1}/{quizList.length}</span>
+            <span style={{fontWeight:800,fontSize:16,color:"#f1c40f"}}>{score.toLocaleString()} pts</span>
             <button style={st.btn(false)} onClick={() => setMode("home")}>Stoppen</button>
           </div>
         </div>
-        <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"40px 24px",gap:28}}>
-          <div style={{background:"rgba(255,255,255,0.05)",borderRadius:16,padding:28,width:"100%",maxWidth:500,textAlign:"center"}}>
-            <p style={{color:"#aaa",margin:"0 0 14px",fontSize:15}}>Van welk land is deze vlag?</p>
-            <img src={current.vlag} alt="vlag" style={{width:"100%",maxWidth:300,aspectRatio:"3/2",objectFit:"contain",borderRadius:8,background:"rgba(255,255,255,0.05)"}} />
+        <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"32px 24px",gap:22}}>
+          <div style={{background:"rgba(255,255,255,0.04)",borderRadius:16,padding:"20px 24px",width:"100%",maxWidth:500,textAlign:"center"}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:16,marginBottom:14}}>
+              <TimerRing timeLeft={timeLeft} />
+              <div style={{textAlign:"left"}}>
+                <div style={{fontSize:11,color:"#666",textTransform:"uppercase",letterSpacing:1}}>Sneller = meer punten</div>
+                <div style={{fontSize:13,color:"#aaa",marginTop:2}}>
+                  {quizAnswer === null
+                    ? <span>Nu: <strong style={{color:"#fff"}}>{calcPoints(timeLeft)} pts</strong></span>
+                    : lastPoints > 0
+                      ? <span style={{color:"#27ae60",fontWeight:700}}>+{lastPoints} punten verdiend!</span>
+                      : <span style={{color:"#e94560"}}>0 punten</span>
+                  }
+                </div>
+              </div>
+            </div>
+            <img src={current.vlag} alt="vlag" style={{width:"100%",maxWidth:280,aspectRatio:"3/2",objectFit:"contain",borderRadius:8,background:"rgba(255,255,255,0.04)"}}/>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,width:"100%",maxWidth:500}}>
-            {quizOptions.map(opt => {
-              let bg = "rgba(255,255,255,0.08)";
-              if (quizAnswer !== null) {
-                if (opt.id === current.id) bg = "#27ae60";
-                else if (opt.id === quizAnswer) bg = "#e94560";
-              }
-              return (
-                <button key={opt.id} onClick={() => handleAnswer(opt)}
-                  style={{padding:"14px 16px",borderRadius:10,border:"1px solid rgba(255,255,255,0.15)",background:bg,color:"#fff",fontSize:15,fontWeight:600,cursor:quizAnswer?"default":"pointer",transition:"background .3s"}}>
+            {quizOptions.map(opt=>{
+              let bg="rgba(255,255,255,0.07)";
+              if(quizAnswer!==null){if(opt.id===current.id)bg="#27ae60";else if(opt.id===quizAnswer)bg="#e94560";}
+              return(
+                <button key={opt.id} onClick={()=>handleAnswer(opt)}
+                  style={{padding:"13px 14px",borderRadius:10,border:"1px solid rgba(255,255,255,0.12)",background:bg,color:"#fff",fontSize:14,fontWeight:600,cursor:quizAnswer?"default":"pointer",transition:"background .25s"}}>
                   {opt.naam}
                 </button>
               );
@@ -615,17 +776,17 @@ export default function App() {
           </div>
           {quizAnswer !== null && (
             <div style={{textAlign:"center"}}>
-              {isCorrect ? (
-                <p style={{color:"#27ae60",fontWeight:700,fontSize:16,margin:"0 0 12px"}}>
-                  ✓ Goed! Volgende vraag over {countdown ?? 0} {countdown === 1 ? "seconde" : "seconden"}...
+              {isTimeout ? (
+                <p style={{color:"#f1c40f",fontWeight:700,fontSize:15,margin:"0 0 12px"}}>⏰ Tijd om! Het was <strong>{current.naam}</strong></p>
+              ) : isCorrect ? (
+                <p style={{color:"#27ae60",fontWeight:700,fontSize:15,margin:"0 0 12px"}}>
+                  ✓ Goed! Volgende over {countdown ?? 0}s...
                 </p>
               ) : (
-                <p style={{color:"#e94560",fontWeight:700,fontSize:16,margin:"0 0 12px"}}>
-                  ✗ Fout! Het was <strong>{current.naam}</strong>
-                </p>
+                <p style={{color:"#e94560",fontWeight:700,fontSize:15,margin:"0 0 12px"}}>✗ Fout! Het was <strong>{current.naam}</strong></p>
               )}
-              <button style={{...st.btn(true),padding:"12px 32px",fontSize:16}} onClick={nextQuestion}>
-                {quizIndex + 1 < quizList.length ? "Volgende →" : "Resultaat bekijken"}
+              <button style={{...st.btn(true),padding:"11px 28px",fontSize:15}} onClick={nextQuestion}>
+                {quizIndex+1 < quizList.length ? "Volgende →" : "Resultaat bekijken"}
               </button>
             </div>
           )}
@@ -637,28 +798,46 @@ export default function App() {
   // ── HOME & BROWSE ──
   return (
     <div style={st.app}>
+      {showLeaderboard && <Leaderboard records={records} onClose={() => setShowLeaderboard(false)} />}
       <div style={st.header}>
         <span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span>
-        <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-          <button style={st.btn(mode==="browse")} onClick={() => setMode("browse")}>Bladeren</button>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
+          {mode === "browse" && <button style={st.btn(true)} onClick={() => setMode("browse")}>Bladeren</button>}
+          {mode !== "browse" && <button style={st.btn(false)} onClick={() => setMode("browse")}>Bladeren</button>}
           <button style={st.btn(false)} onClick={startQuiz}>Solo quiz</button>
-          <button style={{...st.btn(false),background:"linear-gradient(90deg,#e9456044,#4a90d944)",border:"1px solid rgba(255,255,255,0.2)"}} onClick={() => setMode("duel-setup")}>⚔️ 2 spelers</button>
+          <button style={{...st.btn(false),background:"linear-gradient(90deg,#e9456033,#4a90d933)",border:"1px solid rgba(255,255,255,0.15)"}} onClick={() => setMode("duel-setup")}>⚔️ 2 spelers</button>
+          <button style={{...st.btn(false),background:"rgba(241,196,15,0.15)",border:"1px solid rgba(241,196,15,0.3)",color:"#f1c40f"}} onClick={() => setShowLeaderboard(true)}>🏆 Scores</button>
         </div>
       </div>
 
       {mode === "home" && (
         <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"80vh",padding:24,textAlign:"center"}}>
-          <div style={{fontSize:80,marginBottom:24}}>🌍</div>
-          <h1 style={{fontSize:48,margin:"0 0 16px",fontWeight:800}}>Vlaggenwijzer</h1>
-          <p style={{color:"#aaa",fontSize:18,maxWidth:500,marginBottom:48}}>Ontdek de vlaggen van alle 190 landen. Blader door het archief of test je kennis!</p>
-          <div style={{display:"flex",gap:16,flexWrap:"wrap",justifyContent:"center"}}>
-            <button style={{...st.btn(false),padding:"16px 32px",fontSize:17,borderRadius:12,background:"rgba(255,255,255,0.1)"}} onClick={() => setMode("browse")}>🗺 Bladeren</button>
-            <button style={{...st.btn(true),padding:"16px 32px",fontSize:17,borderRadius:12}} onClick={startQuiz}>🎯 Solo quiz</button>
-            <button style={{padding:"16px 32px",fontSize:17,borderRadius:12,border:"none",cursor:"pointer",fontWeight:700,background:"linear-gradient(135deg,#e94560,#4a90d9)",color:"#fff"}} onClick={() => setMode("duel-setup")}>⚔️ 2-speler duel</button>
+          <div style={{fontSize:80,marginBottom:20}}>🌍</div>
+          <h1 style={{fontSize:44,margin:"0 0 14px",fontWeight:800}}>Vlaggenwijzer</h1>
+          <p style={{color:"#aaa",fontSize:17,maxWidth:480,marginBottom:40}}>Leer de vlaggen van 190 landen. Hoe sneller je antwoordt, hoe meer punten je krijgt!</p>
+          <div style={{display:"flex",gap:14,flexWrap:"wrap",justifyContent:"center",marginBottom:32}}>
+            <button style={{...st.btn(false),padding:"14px 28px",fontSize:16,borderRadius:12,background:"rgba(255,255,255,0.08)"}} onClick={() => setMode("browse")}>🗺 Bladeren</button>
+            <button style={{...st.btn(true),padding:"14px 28px",fontSize:16,borderRadius:12}} onClick={startQuiz}>🎯 Solo quiz</button>
+            <button style={{padding:"14px 28px",fontSize:16,borderRadius:12,border:"none",cursor:"pointer",fontWeight:700,background:"linear-gradient(135deg,#e94560,#4a90d9)",color:"#fff"}} onClick={() => setMode("duel-setup")}>⚔️ 2-speler duel</button>
           </div>
-          <div style={{marginTop:48,display:"flex",gap:24,color:"#666",flexWrap:"wrap",justifyContent:"center"}}>
-            {CONTINENTEN.filter(c => c !== "Alle").map(c => (
-              <span key={c} style={{fontSize:13}}>{FLAGS.filter(f=>f.continent===c).length} {c}</span>
+
+          {/* Mini leaderboard on home */}
+          {records.length > 0 && (
+            <div style={{background:"rgba(255,255,255,0.04)",borderRadius:16,padding:"20px 28px",maxWidth:400,width:"100%",border:"1px solid rgba(255,255,255,0.08)"}}>
+              <div style={{fontSize:13,color:"#aaa",marginBottom:14,fontWeight:600,textTransform:"uppercase",letterSpacing:1}}>🏆 Topscores</div>
+              {records.slice(0, 5).map((r, i) => (
+                <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"1px solid rgba(255,255,255,0.05)",fontSize:14}}>
+                  <span><span style={{color:["#f1c40f","#aaa","#cd7f32"][i]||"#555",fontWeight:700,marginRight:8}}>{i+1}.</span>{r.name} <span style={{color:"#555",fontSize:11}}>({r.mode})</span></span>
+                  <span style={{fontWeight:700,color:"#e94560"}}>{r.score.toLocaleString()}</span>
+                </div>
+              ))}
+              <button onClick={() => setShowLeaderboard(true)} style={{marginTop:12,fontSize:12,color:"#4a90d9",background:"none",border:"none",cursor:"pointer"}}>Alle scores bekijken →</button>
+            </div>
+          )}
+
+          <div style={{marginTop:32,display:"flex",gap:20,color:"#444",flexWrap:"wrap",justifyContent:"center"}}>
+            {CONTINENTEN.filter(c=>c!=="Alle").map(c=>(
+              <span key={c} style={{fontSize:12}}>{FLAGS.filter(f=>f.continent===c).length} {c}</span>
             ))}
           </div>
         </div>
@@ -666,19 +845,19 @@ export default function App() {
 
       {mode === "browse" && (
         <>
-          <div style={{padding:"16px 24px",display:"flex",gap:12,flexWrap:"wrap",alignItems:"center"}}>
-            <input style={st.input} placeholder="🔍 Zoeken..." value={search} onChange={e => setSearch(e.target.value)} />
-            <select style={st.select} value={continent} onChange={e => setContinent(e.target.value)}>
-              {CONTINENTEN.map(c => <option key={c} value={c}>{c}</option>)}
+          <div style={{padding:"14px 24px",display:"flex",gap:12,flexWrap:"wrap",alignItems:"center"}}>
+            <input style={st.input} placeholder="🔍 Zoeken..." value={search} onChange={e=>setSearch(e.target.value)}/>
+            <select style={st.select} value={continent} onChange={e=>setContinent(e.target.value)}>
+              {CONTINENTEN.map(c=><option key={c} value={c}>{c}</option>)}
             </select>
-            <span style={{color:"#aaa",fontSize:14}}>{filtered.length} landen</span>
+            <span style={{color:"#aaa",fontSize:13}}>{filtered.length} landen</span>
           </div>
           <div style={st.grid}>
-            {filtered.map(f => (
-              <div key={f.id} style={st.card} onClick={() => setSelected(f)}>
-                <img src={f.vlag} alt={f.naam} style={{width:"100%",aspectRatio:"3/2",objectFit:"cover",borderRadius:6,marginBottom:10,background:"rgba(255,255,255,0.05)"}} loading="lazy" />
+            {filtered.map(f=>(
+              <div key={f.id} style={st.card} onClick={()=>setSelected(f)}>
+                <img src={f.vlag} alt={f.naam} style={{width:"100%",aspectRatio:"3/2",objectFit:"cover",borderRadius:6,marginBottom:10,background:"rgba(255,255,255,0.04)"}} loading="lazy"/>
                 <div style={{fontSize:13,fontWeight:600,textAlign:"center",color:"#e0e0e0"}}>{f.naam}</div>
-                <div style={{textAlign:"center",fontSize:11,color:"#888",marginTop:4}}>{f.continent}</div>
+                <div style={{textAlign:"center",fontSize:11,color:"#666",marginTop:4}}>{f.continent}</div>
               </div>
             ))}
           </div>
@@ -686,16 +865,16 @@ export default function App() {
       )}
 
       {selected && (
-        <div style={st.modal} onClick={() => setSelected(null)}>
-          <div style={st.box} onClick={e => e.stopPropagation()}>
-            <img src={selected.vlag} alt={selected.naam} style={{width:"100%",borderRadius:10,marginBottom:20,aspectRatio:"3/2",objectFit:"contain",background:"rgba(255,255,255,0.05)"}} />
+        <div style={st.modal} onClick={()=>setSelected(null)}>
+          <div style={st.box} onClick={e=>e.stopPropagation()}>
+            <img src={selected.vlag} alt={selected.naam} style={{width:"100%",borderRadius:10,marginBottom:20,aspectRatio:"3/2",objectFit:"contain",background:"rgba(255,255,255,0.04)"}}/>
             <h2 style={{margin:"0 0 8px",fontSize:24}}>{selected.naam}</h2>
-            <p style={{color:"#aaa",margin:"0 0 8px",fontSize:15}}>🏛 Hoofdstad: <strong style={{color:"#fff"}}>{selected.hoofdstad}</strong></p>
-            <p style={{color:"#aaa",margin:"0 0 12px",fontSize:15}}>🌍 Continent: <strong style={{color:"#fff"}}>{selected.continent}</strong></p>
-            <p style={{color:"#aaa",margin:"0 0 8px",fontSize:13}}>Kleuren:</p>
-            <div>{selected.kleuren.map(k => <span key={k} style={st.tag(k)}>{k}</span>)}</div>
-            {selected.symbool && <p style={{color:"#888",fontSize:12,marginTop:12}}>✦ Heeft symbool of wapen op de vlag</p>}
-            <button style={{...st.btn(false),marginTop:20,width:"100%"}} onClick={() => setSelected(null)}>Sluiten</button>
+            <p style={{color:"#aaa",margin:"0 0 6px",fontSize:14}}>🏛 Hoofdstad: <strong style={{color:"#fff"}}>{selected.hoofdstad}</strong></p>
+            <p style={{color:"#aaa",margin:"0 0 12px",fontSize:14}}>🌍 Continent: <strong style={{color:"#fff"}}>{selected.continent}</strong></p>
+            <p style={{color:"#aaa",margin:"0 0 8px",fontSize:12}}>Kleuren:</p>
+            <div>{selected.kleuren.map(k=><span key={k} style={st.tag(k)}>{k}</span>)}</div>
+            {selected.symbool&&<p style={{color:"#555",fontSize:11,marginTop:10}}>✦ Heeft symbool of wapen op de vlag</p>}
+            <button style={{...st.btn(false),marginTop:18,width:"100%"}} onClick={()=>setSelected(null)}>Sluiten</button>
           </div>
         </div>
       )}
