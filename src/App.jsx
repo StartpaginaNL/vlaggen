@@ -209,11 +209,52 @@ function getOptions(correct, all) {
   return shuffle([correct, ...shuffle(pool).slice(0, 3)]);
 }
 
+// ── CONFETTI COMPONENT ──
+function Confetti() {
+  const pieces = Array.from({length: 60}, (_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    delay: Math.random() * 2,
+    duration: 2 + Math.random() * 2,
+    color: ["#e94560","#f1c40f","#27ae60","#4a90d9","#e67e22","#9b59b6"][Math.floor(Math.random()*6)],
+    size: 6 + Math.random() * 8,
+  }));
+  return (
+    <div style={{position:"fixed",inset:0,pointerEvents:"none",zIndex:200,overflow:"hidden"}}>
+      <style>{`
+        @keyframes fall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+      `}</style>
+      {pieces.map(p => (
+        <div key={p.id} style={{
+          position:"absolute", left:`${p.x}%`, top:0,
+          width:p.size, height:p.size, background:p.color, borderRadius:p.size>10?"50%":"2px",
+          animation:`fall ${p.duration}s ${p.delay}s ease-in forwards`
+        }}/>
+      ))}
+    </div>
+  );
+}
+
+// ── HEARTBEAT / LIVES DISPLAY ──
+function Lives({count, color}) {
+  return (
+    <span>
+      {[0,1].map(i => (
+        <span key={i} style={{fontSize:20, opacity: i < count ? 1 : 0.2, filter: i < count ? "none" : "grayscale(1)"}}>
+          {i < count ? "❤️" : "🖤"}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 export default function App() {
   const [mode, setMode] = useState("home");
   const [continent, setContinent] = useState("Alle");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
+
+  // Solo quiz state
   const [quizList, setQuizList] = useState([]);
   const [quizIndex, setQuizIndex] = useState(0);
   const [quizOptions, setQuizOptions] = useState([]);
@@ -221,6 +262,19 @@ export default function App() {
   const [score, setScore] = useState(0);
   const [quizDone, setQuizDone] = useState(false);
   const [countdown, setCountdown] = useState(null);
+
+  // 2-player state
+  const [p1Name, setP1Name] = useState("");
+  const [p2Name, setP2Name] = useState("");
+  const [duelList, setDuelList] = useState([]);
+  const [duelIndex, setDuelIndex] = useState(0);
+  const [duelOptions, setDuelOptions] = useState([]);
+  const [duelAnswer, setDuelAnswer] = useState(null);
+  const [currentPlayer, setCurrentPlayer] = useState(0); // 0 = p1, 1 = p2
+  const [lives, setLives] = useState([2, 2]); // 2 lives each
+  const [scores, setScores] = useState([0, 0]);
+  const [duelDone, setDuelDone] = useState(false);
+  const [winner, setWinner] = useState(null);
 
   const filtered = useMemo(() => FLAGS.filter(f => {
     const matchC = continent === "Alle" || f.continent === continent;
@@ -233,6 +287,7 @@ export default function App() {
     [continent]
   );
 
+  // ── SOLO QUIZ LOGIC ──
   const nextQuestion = useCallback(() => {
     setCountdown(null);
     setQuizIndex(prev => {
@@ -244,7 +299,6 @@ export default function App() {
     });
   }, [quizList, pool]);
 
-  // Auto-advance 3 seconden na goed antwoord
   useEffect(() => {
     if (quizAnswer === null || quizList.length === 0) return;
     if (quizAnswer !== quizList[quizIndex].id) return;
@@ -272,6 +326,51 @@ export default function App() {
     setQuizAnswer(flag.id);
   }
 
+  // ── DUEL LOGIC ──
+  function startDuel() {
+    const list = shuffle(FLAGS);
+    setDuelList(list);
+    setDuelIndex(0);
+    setDuelOptions(getOptions(list[0], FLAGS));
+    setDuelAnswer(null);
+    setCurrentPlayer(0);
+    setLives([2, 2]);
+    setScores([0, 0]);
+    setDuelDone(false);
+    setWinner(null);
+    setMode("duel");
+  }
+
+  function handleDuelAnswer(flag) {
+    if (duelAnswer !== null) return;
+    const correct = flag.id === duelList[duelIndex].id;
+    setDuelAnswer(flag.id);
+
+    const newScores = [...scores];
+    const newLives = [...lives];
+
+    if (correct) {
+      newScores[currentPlayer]++;
+      setScores(newScores);
+    } else {
+      newLives[currentPlayer]--;
+      setLives(newLives);
+      if (newLives[currentPlayer] <= 0) {
+        setWinner(currentPlayer === 0 ? 1 : 0);
+        setDuelDone(true);
+        return;
+      }
+    }
+  }
+
+  function nextDuelQuestion() {
+    const next = duelIndex + 1;
+    setDuelIndex(next);
+    setDuelOptions(getOptions(duelList[next], FLAGS));
+    setDuelAnswer(null);
+    setCurrentPlayer(p => p === 0 ? 1 : 0);
+  }
+
   const st = {
     app: { minHeight:"100vh", background:"linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)", color:"#fff", fontFamily:"'Segoe UI',sans-serif" },
     header: { padding:"20px 24px", borderBottom:"1px solid rgba(255,255,255,0.1)", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 },
@@ -286,7 +385,179 @@ export default function App() {
     tag: (c) => { const m={rood:"#e94560",blauw:"#4a90d9",groen:"#27ae60",geel:"#f1c40f",wit:"#ecf0f1",zwart:"#34495e",oranje:"#e67e22",lichtblauw:"#5dade2",meerkleurig:"#9b59b6"}; return {display:"inline-block",padding:"2px 10px",borderRadius:20,fontSize:11,fontWeight:600,background:m[c]||"#555",color:["wit","geel","lichtblauw"].includes(c)?"#222":"#fff",margin:"2px"}; },
   };
 
-  // Quiz klaar
+  const names = [p1Name||"Speler 1", p2Name||"Speler 2"];
+  const playerColors = ["#e94560", "#4a90d9"];
+
+  // ── DUEL SETUP ──
+  if (mode === "duel-setup") {
+    return (
+      <div style={st.app}>
+        <div style={st.header}>
+          <span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span>
+        </div>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"80vh",padding:24}}>
+          <div style={{...st.box,maxWidth:480,textAlign:"center"}}>
+            <div style={{fontSize:48,marginBottom:16}}>⚔️</div>
+            <h2 style={{margin:"0 0 8px",fontSize:28}}>2-speler duel</h2>
+            <p style={{color:"#aaa",marginBottom:32,fontSize:15}}>Speel om beurten. Wie als eerste 2 fouten maakt verliest!</p>
+            <div style={{display:"flex",flexDirection:"column",gap:16,marginBottom:32}}>
+              <div style={{display:"flex",alignItems:"center",gap:12}}>
+                <span style={{fontSize:24}}>🔴</span>
+                <input
+                  style={{...st.input,width:"100%",border:"2px solid #e94560"}}
+                  placeholder="Naam speler 1"
+                  value={p1Name}
+                  onChange={e => setP1Name(e.target.value)}
+                  onKeyDown={e => e.key==="Enter" && startDuel()}
+                />
+              </div>
+              <div style={{display:"flex",alignItems:"center",gap:12}}>
+                <span style={{fontSize:24}}>🔵</span>
+                <input
+                  style={{...st.input,width:"100%",border:"2px solid #4a90d9"}}
+                  placeholder="Naam speler 2"
+                  value={p2Name}
+                  onChange={e => setP2Name(e.target.value)}
+                  onKeyDown={e => e.key==="Enter" && startDuel()}
+                />
+              </div>
+            </div>
+            <button style={{...st.btn(true),padding:"14px 40px",fontSize:18,borderRadius:12,width:"100%"}} onClick={startDuel}>
+              🚀 Start duel!
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── DUEL WINNER ──
+  if (mode === "duel" && duelDone && winner !== null) {
+    const winnerName = names[winner];
+    const loserName = names[winner === 0 ? 1 : 0];
+    return (
+      <div style={st.app}>
+        <Confetti />
+        <div style={st.header}>
+          <span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span>
+        </div>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"80vh",padding:24}}>
+          <div style={{...st.box,textAlign:"center",maxWidth:520}}>
+            <div style={{fontSize:80,marginBottom:8}}>🏆</div>
+            <h2 style={{margin:"0 0 4px",fontSize:36,color:playerColors[winner]}}>{winnerName}</h2>
+            <p style={{color:"#aaa",fontSize:18,marginBottom:8}}>wint het duel!</p>
+            <p style={{color:"#666",fontSize:14,marginBottom:32}}>{loserName} had 2 fouten gemaakt.</p>
+
+            <div style={{display:"flex",justifyContent:"center",gap:32,marginBottom:32}}>
+              {[0,1].map(i => (
+                <div key={i} style={{background:"rgba(255,255,255,0.05)",borderRadius:12,padding:"16px 24px",border:`2px solid ${i===winner?"#f1c40f":"rgba(255,255,255,0.1)"}`}}>
+                  <div style={{fontSize:13,color:"#aaa",marginBottom:4}}>{names[i]}</div>
+                  <div style={{fontSize:28,fontWeight:700,color:playerColors[i]}}>{scores[i]}</div>
+                  <div style={{fontSize:12,color:"#666"}}>goed</div>
+                  <div style={{marginTop:6}}><Lives count={lives[i]} /></div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{display:"flex",gap:12,justifyContent:"center"}}>
+              <button style={{...st.btn(true),padding:"12px 28px",fontSize:16}} onClick={() => { setMode("duel-setup"); }}>
+                Opnieuw
+              </button>
+              <button style={{...st.btn(false),padding:"12px 28px",fontSize:16}} onClick={() => setMode("home")}>
+                Home
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── DUEL PLAYING ──
+  if (mode === "duel" && duelList.length > 0) {
+    const current = duelList[duelIndex];
+    const isCorrect = duelAnswer === current.id;
+    const cp = currentPlayer;
+    return (
+      <div style={st.app}>
+        <div style={st.header}>
+          <span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span>
+          <button style={st.btn(false)} onClick={() => setMode("home")}>Stoppen</button>
+        </div>
+
+        {/* Scorebord */}
+        <div style={{display:"flex",justifyContent:"center",gap:16,padding:"16px 24px 0"}}>
+          {[0,1].map(i => (
+            <div key={i} style={{
+              flex:1, maxWidth:220,
+              background: i===cp ? `linear-gradient(135deg,${playerColors[i]}22,${playerColors[i]}44)` : "rgba(255,255,255,0.04)",
+              border: `2px solid ${i===cp ? playerColors[i] : "rgba(255,255,255,0.1)"}`,
+              borderRadius:12, padding:"12px 16px",
+              transition:"all .3s"
+            }}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <span style={{fontWeight:700,fontSize:15,color: i===cp ? playerColors[i] : "#aaa"}}>
+                  {i===cp ? "▶ " : ""}{names[i]}
+                </span>
+                <Lives count={lives[i]} />
+              </div>
+              <div style={{fontSize:24,fontWeight:700,color:playerColors[i],marginTop:4}}>{scores[i]} <span style={{fontSize:12,color:"#666",fontWeight:400}}>goed</span></div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"24px 24px 40px",gap:24}}>
+          {/* Beurt indicator */}
+          <div style={{background:`${playerColors[cp]}22`,border:`1px solid ${playerColors[cp]}`,borderRadius:20,padding:"6px 20px",fontSize:14,fontWeight:600,color:playerColors[cp]}}>
+            {names[cp]} is aan de beurt
+          </div>
+
+          {/* Vlag */}
+          <div style={{background:"rgba(255,255,255,0.05)",borderRadius:16,padding:24,width:"100%",maxWidth:500,textAlign:"center"}}>
+            <p style={{color:"#aaa",margin:"0 0 14px",fontSize:15}}>Van welk land is deze vlag?</p>
+            <img src={current.vlag} alt="vlag" style={{width:"100%",maxWidth:300,aspectRatio:"3/2",objectFit:"contain",borderRadius:8,background:"rgba(255,255,255,0.05)"}} />
+          </div>
+
+          {/* Antwoord knoppen */}
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,width:"100%",maxWidth:500}}>
+            {duelOptions.map(opt => {
+              let bg = "rgba(255,255,255,0.08)";
+              if (duelAnswer !== null) {
+                if (opt.id === current.id) bg = "#27ae60";
+                else if (opt.id === duelAnswer) bg = "#e94560";
+              }
+              return (
+                <button key={opt.id} onClick={() => handleDuelAnswer(opt)}
+                  style={{padding:"14px 16px",borderRadius:10,border:"1px solid rgba(255,255,255,0.15)",background:bg,color:"#fff",fontSize:15,fontWeight:600,cursor:duelAnswer?"default":"pointer",transition:"background .3s"}}>
+                  {opt.naam}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Feedback */}
+          {duelAnswer !== null && !duelDone && (
+            <div style={{textAlign:"center"}}>
+              {isCorrect ? (
+                <p style={{color:"#27ae60",fontWeight:700,fontSize:16,margin:"0 0 12px"}}>
+                  ✓ Goed gedaan, {names[cp]}!
+                </p>
+              ) : (
+                <p style={{color:"#e94560",fontWeight:700,fontSize:16,margin:"0 0 12px"}}>
+                  ✗ Fout! Het was <strong>{current.naam}</strong>. {lives[cp] > 0 ? `Nog ${lives[cp]} ${lives[cp]===1?"leven":"levens"} over.` : ""}
+                </p>
+              )}
+              <button style={{...st.btn(true),padding:"12px 32px",fontSize:16}} onClick={nextDuelQuestion}>
+                Volgende → ({names[currentPlayer === 0 ? 1 : 0]} is aan de beurt)
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ── SOLO QUIZ DONE ──
   if (mode === "quiz" && quizDone) {
     const pct = Math.round((score / quizList.length) * 100);
     return (
@@ -300,7 +571,7 @@ export default function App() {
             <div style={{fontSize:48,fontWeight:700,color:"#e94560",marginBottom:24}}>{pct}%</div>
             <div style={{display:"flex",gap:12,justifyContent:"center"}}>
               <button style={{...st.btn(true),padding:"12px 28px",fontSize:16}} onClick={startQuiz}>Opnieuw</button>
-              <button style={{...st.btn(false),padding:"12px 28px",fontSize:16}} onClick={() => setMode("browse")}>Bladeren</button>
+              <button style={{...st.btn(false),padding:"12px 28px",fontSize:16}} onClick={() => setMode("home")}>Home</button>
             </div>
           </div>
         </div>
@@ -308,7 +579,7 @@ export default function App() {
     );
   }
 
-  // Quiz
+  // ── SOLO QUIZ ──
   if (mode === "quiz" && quizList.length > 0) {
     const current = quizList[quizIndex];
     const isCorrect = quizAnswer === current.id;
@@ -363,14 +634,15 @@ export default function App() {
     );
   }
 
-  // Home & Browse
+  // ── HOME & BROWSE ──
   return (
     <div style={st.app}>
       <div style={st.header}>
         <span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span>
-        <div style={{display:"flex",gap:10}}>
+        <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
           <button style={st.btn(mode==="browse")} onClick={() => setMode("browse")}>Bladeren</button>
-          <button style={st.btn(false)} onClick={startQuiz}>Quiz spelen</button>
+          <button style={st.btn(false)} onClick={startQuiz}>Solo quiz</button>
+          <button style={{...st.btn(false),background:"linear-gradient(90deg,#e9456044,#4a90d944)",border:"1px solid rgba(255,255,255,0.2)"}} onClick={() => setMode("duel-setup")}>⚔️ 2 spelers</button>
         </div>
       </div>
 
@@ -378,10 +650,11 @@ export default function App() {
         <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"80vh",padding:24,textAlign:"center"}}>
           <div style={{fontSize:80,marginBottom:24}}>🌍</div>
           <h1 style={{fontSize:48,margin:"0 0 16px",fontWeight:800}}>Vlaggenwijzer</h1>
-          <p style={{color:"#aaa",fontSize:18,maxWidth:500,marginBottom:48}}>Ontdek de vlaggen van alle 190 landen. Blader door het archief of test je kennis met een quiz!</p>
+          <p style={{color:"#aaa",fontSize:18,maxWidth:500,marginBottom:48}}>Ontdek de vlaggen van alle 190 landen. Blader door het archief of test je kennis!</p>
           <div style={{display:"flex",gap:16,flexWrap:"wrap",justifyContent:"center"}}>
-            <button style={{...st.btn(true),padding:"16px 36px",fontSize:18,borderRadius:12}} onClick={() => setMode("browse")}>🗺 Bladeren</button>
-            <button style={{...st.btn(false),padding:"16px 36px",fontSize:18,borderRadius:12,background:"rgba(255,255,255,0.12)"}} onClick={startQuiz}>🎯 Quiz spelen</button>
+            <button style={{...st.btn(false),padding:"16px 32px",fontSize:17,borderRadius:12,background:"rgba(255,255,255,0.1)"}} onClick={() => setMode("browse")}>🗺 Bladeren</button>
+            <button style={{...st.btn(true),padding:"16px 32px",fontSize:17,borderRadius:12}} onClick={startQuiz}>🎯 Solo quiz</button>
+            <button style={{padding:"16px 32px",fontSize:17,borderRadius:12,border:"none",cursor:"pointer",fontWeight:700,background:"linear-gradient(135deg,#e94560,#4a90d9)",color:"#fff"}} onClick={() => setMode("duel-setup")}>⚔️ 2-speler duel</button>
           </div>
           <div style={{marginTop:48,display:"flex",gap:24,color:"#666",flexWrap:"wrap",justifyContent:"center"}}>
             {CONTINENTEN.filter(c => c !== "Alle").map(c => (
