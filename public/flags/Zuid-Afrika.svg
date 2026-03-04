@@ -1,10 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
-<rect width="900" height="200" fill="#007A4D"/>
-<rect y="400" width="900" height="200" fill="#001489"/>
-<rect y="200" width="900" height="200" fill="#FFFFFF"/>
-<rect y="220" width="900" height="160" fill="#FFB612"/>
-<polygon points="0,0 380,300 0,600" fill="#000000"/>
-<polygon points="0,50 320,300 0,550" fill="#007A4D"/>
-<line x1="0" y1="250" x2="380" y2="300" stroke="#FFB612" stroke-width="50"/>
-<line x1="0" y1="350" x2="380" y2="300" stroke="#FFB612" stroke-width="50"/>
+  <!-- Red top stripe -->
+  <rect width="900" height="200" fill="#DE3831"/>
+  <!-- Blue bottom stripe -->
+  <rect y="400" width="900" height="200" fill="#002395"/>
+  <!-- White center stripe -->
+  <rect y="200" width="900" height="200" fill="#FFFFFF"/>
+  <!-- Gold center stripe (inner) -->
+  <rect y="233" width="900" height="134" fill="#FFB612"/>
+  <!-- Black chevron (outermost left triangle) -->
+  <polygon points="0,0 0,600 300,300" fill="#000000"/>
+  <!-- Gold chevron border -->
+  <polygon points="0,0 0,600 370,300 60,0" fill="#FFB612"/>
+  <polygon points="0,600 370,300 60,600" fill="#FFB612"/>
+  <!-- Green chevron -->
+  <polygon points="0,0 0,600 340,300" fill="#007A4D"/>
+  <!-- Green horizontal center band -->
+  <rect x="340" y="250" width="560" height="100" fill="#007A4D"/>
+  <!-- Gold top border of horizontal band -->
+  <rect x="340" y="218" width="560" height="32" fill="#FFB612"/>
+  <!-- Gold bottom border of horizontal band -->
+  <rect x="340" y="350" width="560" height="32" fill="#FFB612"/>
 </svg>
