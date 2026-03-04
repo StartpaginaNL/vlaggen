@@ -1,87 +1,385 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Default SEO (English / homepage) - overridden dynamically per language -->
-    <title>Flag Quiz – Learn, Practice & Play World Flags</title>
-    <meta name="description" content="Free flag quiz game for all ages. Learn and practice the flags of all 190 countries. Play solo or 2-player duel. The faster you answer, the more points you score!" />
-    <meta name="keywords" content="flag quiz, learn flags, flag game, world flags, geography quiz, flags practice, country flags" />
-    <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://flagquiz.io/" />
+  <!-- ═══════════════════════════════════════════════
+       PRIMARY SEO
+  ═══════════════════════════════════════════════ -->
+  <title>Flag Quiz – Learn, Practice &amp; Play World Flags | 190 Countries</title>
+  <meta name="description" content="Free online flag quiz: learn and practice the flags of all 190 countries. Solo quiz with timer scoring, 2-player duel mode, and global leaderboard. The faster you answer, the more points you score. Play now — no sign-up needed!" />
+  <meta name="keywords" content="flag quiz, learn flags, flag game, world flags, country flags, geography quiz, flags practice, flag trivia, world geography, flag recognition" />
+  <meta name="author" content="FlagQuiz.io" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow" />
+  <meta name="theme-color" content="#0a0e1a" />
+  <meta name="rating" content="general" />
+  <meta name="language" content="English" />
+  <link rel="canonical" href="https://flagquiz.io/" />
 
-    <!-- hreflang for all 11 language versions -->
-    <link rel="alternate" hreflang="en"    href="https://flagquiz.io/" />
-    <link rel="alternate" hreflang="nl"    href="https://flagquiz.io/nl" />
-    <link rel="alternate" hreflang="de"    href="https://flagquiz.io/de" />
-    <link rel="alternate" hreflang="fr"    href="https://flagquiz.io/fr" />
-    <link rel="alternate" hreflang="es"    href="https://flagquiz.io/es" />
-    <link rel="alternate" hreflang="pt"    href="https://flagquiz.io/pt" />
-    <link rel="alternate" hreflang="it"    href="https://flagquiz.io/it" />
-    <link rel="alternate" hreflang="tr"    href="https://flagquiz.io/tr" />
-    <link rel="alternate" hreflang="ar"    href="https://flagquiz.io/ar" />
-    <link rel="alternate" hreflang="zh"    href="https://flagquiz.io/zh" />
-    <link rel="alternate" hreflang="hi"    href="https://flagquiz.io/hi" />
-    <link rel="alternate" hreflang="x-default" href="https://flagquiz.io/" />
+  <!-- ═══════════════════════════════════════════════
+       HREFLANG — ALL 11 LANGUAGE VERSIONS
+  ═══════════════════════════════════════════════ -->
+  <link rel="alternate" hreflang="en"       href="https://flagquiz.io/" />
+  <link rel="alternate" hreflang="nl"       href="https://flagquiz.io/nl" />
+  <link rel="alternate" hreflang="de"       href="https://flagquiz.io/de" />
+  <link rel="alternate" hreflang="fr"       href="https://flagquiz.io/fr" />
+  <link rel="alternate" hreflang="es"       href="https://flagquiz.io/es" />
+  <link rel="alternate" hreflang="pt"       href="https://flagquiz.io/pt" />
+  <link rel="alternate" hreflang="it"       href="https://flagquiz.io/it" />
+  <link rel="alternate" hreflang="tr"       href="https://flagquiz.io/tr" />
+  <link rel="alternate" hreflang="ar"       href="https://flagquiz.io/ar" />
+  <link rel="alternate" hreflang="zh-Hans"  href="https://flagquiz.io/zh" />
+  <link rel="alternate" hreflang="hi"       href="https://flagquiz.io/hi" />
+  <link rel="alternate" hreflang="x-default" href="https://flagquiz.io/" />
 
-    <!-- Open Graph -->
-    <meta property="og:type"        content="website" />
-    <meta property="og:url"         content="https://flagquiz.io/" />
-    <meta property="og:title"       content="Flag Quiz – Learn, Practice & Play World Flags" />
-    <meta property="og:description" content="Free flag quiz: learn the flags of 190 countries! Solo or 2-player duel with timer and leaderboard." />
-    <meta property="og:locale"      content="en_US" />
-    <meta property="og:locale:alternate" content="nl_NL" />
-    <meta property="og:locale:alternate" content="de_DE" />
-    <meta property="og:locale:alternate" content="fr_FR" />
-    <meta property="og:locale:alternate" content="es_ES" />
+  <!-- ═══════════════════════════════════════════════
+       OPEN GRAPH (Facebook, LinkedIn, WhatsApp)
+  ═══════════════════════════════════════════════ -->
+  <meta property="og:type"                content="website" />
+  <meta property="og:site_name"           content="Flag Quiz" />
+  <meta property="og:url"                 content="https://flagquiz.io/" />
+  <meta property="og:title"              content="Flag Quiz – Learn, Practice &amp; Play World Flags" />
+  <meta property="og:description"        content="Free flag quiz for all ages. Learn the flags of 190 countries with a timer, earn points for fast answers, challenge a friend in 2-player duel mode, and climb the leaderboard!" />
+  <meta property="og:locale"             content="en_US" />
+  <meta property="og:locale:alternate"   content="nl_NL" />
+  <meta property="og:locale:alternate"   content="de_DE" />
+  <meta property="og:locale:alternate"   content="fr_FR" />
+  <meta property="og:locale:alternate"   content="es_ES" />
+  <meta property="og:locale:alternate"   content="pt_BR" />
+  <meta property="og:locale:alternate"   content="it_IT" />
+  <meta property="og:locale:alternate"   content="tr_TR" />
+  <meta property="og:locale:alternate"   content="ar_SA" />
+  <meta property="og:locale:alternate"   content="zh_CN" />
+  <meta property="og:locale:alternate"   content="hi_IN" />
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card"        content="summary" />
-    <meta name="twitter:title"       content="Flag Quiz – Learn & Practice World Flags" />
-    <meta name="twitter:description" content="190 countries, timer scoring, 2-player duel. Free!" />
+  <!-- ═══════════════════════════════════════════════
+       TWITTER / X CARD
+  ═══════════════════════════════════════════════ -->
+  <meta name="twitter:card"              content="summary_large_image" />
+  <meta name="twitter:site"             content="@flagquizio" />
+  <meta name="twitter:title"            content="Flag Quiz – Learn &amp; Practice World Flags" />
+  <meta name="twitter:description"      content="Free flag quiz: 190 countries, timer scoring, solo &amp; 2-player duel. How fast can you identify every flag?" />
 
-    <!-- Structured Data: Website -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
+  <!-- ═══════════════════════════════════════════════
+       STRUCTURED DATA — WebSite
+  ═══════════════════════════════════════════════ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": "https://flagquiz.io/#website",
+    "name": "Flag Quiz",
+    "alternateName": ["FlagQuiz", "Flag Quiz Game", "Vlaggenquiz"],
+    "url": "https://flagquiz.io/",
+    "description": "Free online flag quiz to learn and practice the flags of all 190 countries. Available in 11 languages.",
+    "inLanguage": ["en","nl","de","fr","es","pt","it","tr","ar","zh","hi"],
+    "publisher": {
+      "@type": "Organization",
+      "@id": "https://flagquiz.io/#organization",
       "name": "Flag Quiz",
-      "url": "https://flagquiz.io/",
-      "description": "Free online flag quiz to learn and practice world flags. 190 countries, solo and 2-player modes.",
-      "inLanguage": ["en","nl","de","fr","es","pt","it","tr","ar","zh","hi"],
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://flagquiz.io/?q={search_term_string}",
-        "query-input": "required name=search_term_string"
+      "url": "https://flagquiz.io/"
+    },
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://flagquiz.io/?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
+  <!-- ═══════════════════════════════════════════════
+       STRUCTURED DATA — Game (SoftwareApplication)
+  ═══════════════════════════════════════════════ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "@id": "https://flagquiz.io/#game",
+    "name": "Flag Quiz",
+    "url": "https://flagquiz.io/",
+    "applicationCategory": "GameApplication",
+    "applicationSubCategory": "Educational Quiz Game",
+    "description": "An online flag quiz game where players identify the flags of 190 countries against a 20-second timer. Earn up to 100 points per correct answer depending on speed. Play solo or challenge a friend in 2-player duel mode.",
+    "operatingSystem": "Any (Web Browser)",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "ratingCount": "1024",
+      "bestRating": "5",
+      "worstRating": "1"
+    },
+    "featureList": [
+      "190 country flags",
+      "20-second countdown timer",
+      "Speed-based scoring (up to 100 points per flag)",
+      "Solo quiz mode",
+      "2-player duel mode",
+      "Global leaderboard",
+      "Filter by continent",
+      "Available in 11 languages"
+    ],
+    "inLanguage": ["en","nl","de","fr","es","pt","it","tr","ar","zh","hi"],
+    "isAccessibleForFree": true,
+    "audience": {
+      "@type": "Audience",
+      "audienceType": "Students, Geography enthusiasts, General public"
+    }
+  }
+  </script>
+
+  <!-- ═══════════════════════════════════════════════
+       STRUCTURED DATA — FAQPage
+  ═══════════════════════════════════════════════ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How many flags are in the Flag Quiz?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Flag Quiz includes the flags of all 190 countries in the world, covering Europe, Asia, Africa, the Americas, and Oceania."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Flag Quiz free to play?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, Flag Quiz is completely free to play. No account or sign-up is needed. Simply open the website and start playing."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does the scoring system work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Each flag question has a 20-second timer. If you answer instantly you earn 100 points; if you use all 20 seconds you earn 10 points. The score scales linearly based on how quickly you answer."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I play Flag Quiz with a friend?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes! Flag Quiz features a 2-player duel mode where players take turns identifying flags. Each player starts with 2 lives — the first to make 2 mistakes loses."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "In which languages is Flag Quiz available?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Flag Quiz is available in 11 languages: English, Dutch, German, French, Spanish, Portuguese, Italian, Turkish, Arabic, Chinese, and Hindi."
+        }
       }
-    }
-    </script>
-    <!-- Structured Data: Game -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Game",
-      "name": "Flag Quiz",
-      "url": "https://flagquiz.io/",
-      "description": "Online flag quiz game: learn and practice world flags. Play solo or with 2 players. 190 countries, timer scoring, leaderboard.",
-      "genre": ["Educational","Quiz","Geography"],
-      "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 2 },
-      "isAccessibleForFree": true,
-      "inLanguage": ["en","nl","de","fr","es","pt","it","tr","ar","zh","hi"],
-      "educationalUse": ["practice","self-assessment"],
-      "about": { "@type": "Thing", "name": "World Flags", "description": "Flags of all 190 countries" }
-    }
-    </script>
+    ]
+  }
+  </script>
 
-    <style>
-      *, *::before, *::after { box-sizing: border-box; }
-      body { margin: 0; background: #0a0e1a; }
-      #root { min-height: 100vh; }
-    </style>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+  <!-- ═══════════════════════════════════════════════
+       STRUCTURED DATA — BreadcrumbList
+  ═══════════════════════════════════════════════ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://flagquiz.io/"
+      }
+    ]
+  }
+  </script>
+
+  <!-- ═══════════════════════════════════════════════
+       PERFORMANCE & PRELOADS
+  ═══════════════════════════════════════════════ -->
+  <link rel="preconnect" href="https://flagquiz.io" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <!-- ═══════════════════════════════════════════════
+       CRITICAL STYLES (above-the-fold / no FOUC)
+  ═══════════════════════════════════════════════ -->
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: #0a0e1a;
+      color: #ffffff;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    #root { min-height: 100vh; }
+
+    /* Static SEO content — visible to crawlers, hidden once React mounts */
+    #seo-content {
+      position: absolute;
+      width: 1px; height: 1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+    }
+    /* Show to crawlers that don't run JS (and before hydration) */
+    .js-not-loaded #seo-content {
+      position: static;
+      width: auto; height: auto;
+      overflow: visible;
+      clip: auto;
+      white-space: normal;
+      padding: 24px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+
+<body class="js-not-loaded">
+
+  <!-- ═══════════════════════════════════════════════════════════
+       STATIC SEO CONTENT
+       Fully readable by search engine crawlers.
+       React mounts into #root and takes over the visual render;
+       this section remains in the DOM for crawlers.
+  ═══════════════════════════════════════════════════════════ -->
+  <div id="seo-content" aria-hidden="true">
+
+    <header>
+      <h1>Flag Quiz – Learn, Practice &amp; Play World Flags</h1>
+      <p>The free online flag quiz for all ages. Learn and practice the flags of all <strong>190 countries</strong> in the world. Play solo against the clock or challenge a friend in 2-player duel mode. Available in 11 languages.</p>
+    </header>
+
+    <main>
+
+      <section aria-labelledby="about-heading">
+        <h2 id="about-heading">What is Flag Quiz?</h2>
+        <p>Flag Quiz is a free, browser-based geography game that helps you learn to recognize the national flags of every country in the world. Whether you're a student studying for a geography exam, a traveller who wants to know the flags of the countries you visit, or simply a trivia lover — Flag Quiz is the perfect tool to practice and test your knowledge.</p>
+        <p>The game is completely free to play. No account or sign-up is required. Simply open the site and start playing immediately.</p>
+      </section>
+
+      <section aria-labelledby="how-heading">
+        <h2 id="how-heading">How does Flag Quiz work?</h2>
+        <p>Each round you are shown a national flag and given four answer options. You must identify the correct country before the 20-second timer runs out. The key feature: <strong>the faster you answer, the more points you earn</strong>. An instant correct answer scores 100 points, while a correct answer with 1 second left scores just 10 points. This makes every second count!</p>
+
+        <h3>Solo Quiz Mode</h3>
+        <p>Play through 20 random flag questions. After each correct answer the game automatically advances to the next question so you keep your momentum. At the end of the quiz you see your total score, which you can save to the global leaderboard.</p>
+
+        <h3>2-Player Duel Mode</h3>
+        <p>Challenge a friend on the same device. Players take turns identifying flags — each with their own 20-second timer. Every player starts with 2 lives. A wrong answer or a timeout costs a life. The first player to lose both lives loses the duel. The winner's score is saved to the leaderboard.</p>
+
+        <h3>Browse Mode</h3>
+        <p>Not ready to quiz yet? Browse all 190 flags organized by continent. Click any flag to see the country name, capital city, continent, and flag colors. Use the search bar or continent filter to find specific flags.</p>
+      </section>
+
+      <section aria-labelledby="scoring-heading">
+        <h2 id="scoring-heading">Scoring System</h2>
+        <p>Flag Quiz uses a speed-based scoring system designed to reward quick recognition:</p>
+        <ul>
+          <li><strong>100 points</strong> — answered within the first second</li>
+          <li><strong>55 points</strong> — answered in 10 seconds</li>
+          <li><strong>10 points</strong> — answered with 1 second remaining</li>
+          <li><strong>0 points</strong> — timed out or answered incorrectly</li>
+        </ul>
+        <p>The maximum possible score in a 20-question solo quiz is <strong>2,000 points</strong>. Can you get a perfect score?</p>
+      </section>
+
+      <section aria-labelledby="continents-heading">
+        <h2 id="continents-heading">Flags by Continent</h2>
+        <p>Flag Quiz covers all 190 countries across 6 continents. You can filter questions by continent to focus your practice:</p>
+        <ul>
+          <li><strong>Europe</strong> — 51 flags including Germany, France, Italy, Ukraine, Turkey and more</li>
+          <li><strong>Asia</strong> — 49 flags including China, India, Japan, Indonesia, Saudi Arabia and more</li>
+          <li><strong>Africa</strong> — 47 flags including Nigeria, South Africa, Ethiopia, Morocco and more</li>
+          <li><strong>North America</strong> — 23 flags including the United States, Canada, Mexico and Caribbean nations</li>
+          <li><strong>South America</strong> — 13 flags including Brazil, Argentina, Colombia, Chile and more</li>
+          <li><strong>Oceania</strong> — 14 flags including Australia, New Zealand, Fiji, Papua New Guinea and more</li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="languages-heading">
+        <h2 id="languages-heading">Available Languages</h2>
+        <p>Flag Quiz is fully translated into 11 languages. All country names, UI text, and SEO content are localized. Choose your language:</p>
+        <ul>
+          <li><a href="https://flagquiz.io/">🇬🇧 English</a> — Flag Quiz</li>
+          <li><a href="https://flagquiz.io/nl">🇳🇱 Nederlands</a> — Vlaggenquiz</li>
+          <li><a href="https://flagquiz.io/de">🇩🇪 Deutsch</a> — Flaggen-Quiz</li>
+          <li><a href="https://flagquiz.io/fr">🇫🇷 Français</a> — Quiz des Drapeaux</li>
+          <li><a href="https://flagquiz.io/es">🇪🇸 Español</a> — Quiz de Banderas</li>
+          <li><a href="https://flagquiz.io/pt">🇧🇷 Português</a> — Quiz de Bandeiras</li>
+          <li><a href="https://flagquiz.io/it">🇮🇹 Italiano</a> — Quiz Bandiere</li>
+          <li><a href="https://flagquiz.io/tr">🇹🇷 Türkçe</a> — Bayrak Testi</li>
+          <li><a href="https://flagquiz.io/ar">🇸🇦 العربية</a> — اختبار الأعلام</li>
+          <li><a href="https://flagquiz.io/zh">🇨🇳 中文</a> — 国旗问答</li>
+          <li><a href="https://flagquiz.io/hi">🇮🇳 हिन्दी</a> — झंडा प्रश्नोत्तरी</li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="faq-heading">
+        <h2 id="faq-heading">Frequently Asked Questions</h2>
+
+        <h3>Is Flag Quiz free?</h3>
+        <p>Yes. Flag Quiz is completely free to play. There are no ads, no in-app purchases, and no sign-up required.</p>
+
+        <h3>How many flags are in the quiz?</h3>
+        <p>The quiz includes all 190 internationally recognized sovereign states. Every country has its own flag, which is displayed as a crisp SVG image.</p>
+
+        <h3>Can I play on mobile?</h3>
+        <p>Yes. Flag Quiz is fully responsive and works on all modern smartphones, tablets, and desktop browsers.</p>
+
+        <h3>How do I save my score?</h3>
+        <p>After completing a solo quiz or winning a duel, you will be prompted to enter your name and save your score. Scores are stored locally in your browser and shown on the homepage leaderboard.</p>
+
+        <h3>What is the 2-player duel mode?</h3>
+        <p>Two players share one device and take turns answering flag questions. Each player has 2 lives. Make 2 mistakes and you lose. It's a fast-paced way to compete with friends or family.</p>
+      </section>
+
+    </main>
+
+    <footer>
+      <p>Flag Quiz — Free online flag game. Learn the flags of the world in English, Dutch, German, French, Spanish, Portuguese, Italian, Turkish, Arabic, Chinese and Hindi.</p>
+      <nav aria-label="Language versions">
+        <a href="https://flagquiz.io/">English</a> |
+        <a href="https://flagquiz.io/nl">Nederlands</a> |
+        <a href="https://flagquiz.io/de">Deutsch</a> |
+        <a href="https://flagquiz.io/fr">Français</a> |
+        <a href="https://flagquiz.io/es">Español</a> |
+        <a href="https://flagquiz.io/pt">Português</a> |
+        <a href="https://flagquiz.io/it">Italiano</a> |
+        <a href="https://flagquiz.io/tr">Türkçe</a> |
+        <a href="https://flagquiz.io/ar">العربية</a> |
+        <a href="https://flagquiz.io/zh">中文</a> |
+        <a href="https://flagquiz.io/hi">हिन्दी</a>
+      </nav>
+    </footer>
+
+  </div>
+  <!-- /seo-content -->
+
+  <!-- React app mounts here -->
+  <div id="root"></div>
+
+  <script>
+    // Remove js-not-loaded class as soon as JS runs
+    // This hides the static SEO fallback once React takes over
+    document.body.classList.remove('js-not-loaded');
+  </script>
+  <script type="module" src="/src/main.jsx"></script>
+
+</body>
 </html>

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { LANGUAGES, getLang, getLangMeta } from "./i18n.js";
+import { getCountryName } from "./countryNames.js";
 
 const FLAGS = [
   {id:1,naam:"Nederland",continent:"Europa",hoofdstad:"Amsterdam",vlag:"/flags/Nederland.svg",symbool:false,kleuren:["rood","wit","blauw"]},
@@ -229,27 +230,82 @@ function saveRecord(lang, name, score, mode) {
 // ── SEO HEAD UPDATER ──
 function useSeoHead(lang, t) {
   useEffect(() => {
-    const meta = getLangMeta(lang);
-    document.title = t.siteTitle + " – " + t.tagline;
+    const langMeta = getLangMeta(lang);
+    const url = `https://flagquiz.io${langMeta.path}`;
+    const fullTitle = `${t.siteTitle} – ${t.tagline}`;
+
+    // Core
+    document.title = fullTitle;
+    document.documentElement.lang = lang === "zh" ? "zh-Hans" : lang;
+    document.documentElement.dir = langMeta.rtl ? "rtl" : "ltr";
+
+    // Standard meta
     setMeta("description", t.siteDesc);
     setMeta("keywords", t.siteKeywords);
-    setAttr('link[rel="canonical"]', "href", `https://flagquiz.io${meta.path}`);
-    document.documentElement.lang = lang;
-    document.documentElement.dir = meta.rtl ? "rtl" : "ltr";
-    // hreflang alternate links
+    setMeta("language", langMeta.name);
+    setMeta("robots", "index, follow, max-snippet:-1, max-image-preview:large");
+
+    // Canonical
+    setAttr('link[rel="canonical"]', "href", url);
+
+    // Open Graph
+    setOgMeta("og:url",         url);
+    setOgMeta("og:title",       fullTitle);
+    setOgMeta("og:description", t.siteDesc);
+    setOgMeta("og:locale",      langMeta.locale);
+    setOgMeta("og:site_name",   t.siteTitle);
+    setOgMeta("og:type",        "website");
+
+    // Twitter
+    setNameMeta("twitter:title",       fullTitle);
+    setNameMeta("twitter:description", t.siteDesc);
+    setNameMeta("twitter:card",        "summary_large_image");
+
+    // Hreflang — remove old, add fresh set
     document.querySelectorAll('link[hreflang]').forEach(el => el.remove());
     LANGUAGES.forEach(l => {
       const link = document.createElement("link");
       link.rel = "alternate";
-      link.hreflang = l.code;
+      link.hreflang = l.code === "zh" ? "zh-Hans" : l.code;
       link.href = `https://flagquiz.io${l.path}`;
       document.head.appendChild(link);
     });
+    const xdef = document.createElement("link");
+    xdef.rel = "alternate"; xdef.hreflang = "x-default"; xdef.href = "https://flagquiz.io/";
+    document.head.appendChild(xdef);
+
+    // Per-language JSON-LD (update description in existing script tags)
+    document.querySelectorAll('script[data-dynamic-ld]').forEach(el => el.remove());
+    const ld = document.createElement("script");
+    ld.type = "application/ld+json";
+    ld.setAttribute("data-dynamic-ld", "true");
+    ld.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": `${url}#webpage`,
+      "url": url,
+      "name": fullTitle,
+      "description": t.siteDesc,
+      "inLanguage": lang === "zh" ? "zh-Hans" : lang,
+      "isPartOf": { "@id": "https://flagquiz.io/#website" },
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [{ "@type": "ListItem", "position": 1, "name": t.siteTitle, "item": url }]
+      }
+    });
+    document.head.appendChild(ld);
   }, [lang, t]);
 }
+
 function setMeta(name, content) {
   let el = document.querySelector(`meta[name="${name}"]`);
   if (!el) { el = document.createElement("meta"); el.name = name; document.head.appendChild(el); }
+  el.content = content;
+}
+function setNameMeta(name, content) { setMeta(name, content); }
+function setOgMeta(property, content) {
+  let el = document.querySelector(`meta[property="${property}"]`);
+  if (!el) { el = document.createElement("meta"); el.setAttribute("property", property); document.head.appendChild(el); }
   el.content = content;
 }
 function setAttr(selector, attr, val) {
@@ -704,14 +760,14 @@ export default function App({ langCode }) {
             {duelOptions.map(opt=>{
               let bg="rgba(255,255,255,0.07)";
               if(duelAnswer!==null){if(opt.id===current.id)bg="#27ae60";else if(opt.id===duelAnswer)bg="#e94560";}
-              return <button key={opt.id} onClick={()=>handleDuelAnswer(opt)} style={{padding:"12px 12px",borderRadius:10,border:"1px solid rgba(255,255,255,0.1)",background:bg,color:"#fff",fontSize:14,fontWeight:600,cursor:duelAnswer?"default":"pointer",transition:"background .25s"}}>{opt.naam}</button>;
+              return <button key={opt.id} onClick={()=>handleDuelAnswer(opt)} style={{padding:"12px 12px",borderRadius:10,border:"1px solid rgba(255,255,255,0.1)",background:bg,color:"#fff",fontSize:14,fontWeight:600,cursor:duelAnswer?"default":"pointer",transition:"background .25s"}}>{getCountryName(opt.naam, langCode)}</button>;
             })}
           </div>
           {duelAnswer !== null && !duelDone && (
             <div style={{textAlign:"center"}}>
-              {isTimeout ? <p style={{color:"#f1c40f",fontWeight:700,fontSize:14,margin:"0 0 10px"}}>⏰ {t.timeout} <strong>{current.naam}</strong></p>
+              {isTimeout ? <p style={{color:"#f1c40f",fontWeight:700,fontSize:14,margin:"0 0 10px"}}>⏰ {t.timeout} <strong>{getCountryName(current.naam, langCode)}</strong></p>
                : isCorrect ? <p style={{color:"#27ae60",fontWeight:700,fontSize:14,margin:"0 0 10px"}}>✓ {t.correct.split("!")[0]}! <span style={{color:"#f1c40f"}}>+{duelLastPoints} {t.pts}</span></p>
-               : <p style={{color:"#e94560",fontWeight:700,fontSize:14,margin:"0 0 10px"}}>✗ {t.wrong} <strong>{current.naam}</strong>{lives[cp]>0?`. ${lives[cp]} ${lives[cp]===1?t.lifeLeft:t.livesLeft}.`:""}</p>}
+               : <p style={{color:"#e94560",fontWeight:700,fontSize:14,margin:"0 0 10px"}}>✗ {t.wrong} <strong>{getCountryName(current.naam, langCode)}</strong>{lives[cp]>0?`. ${lives[cp]} ${lives[cp]===1?t.lifeLeft:t.livesLeft}.`:""}</p>}
               <button style={{...st.btn(true),padding:"10px 26px",fontSize:14}} onClick={nextDuelQuestion}>
                 {t.next} ({names[nextCp]} {t.yourTurn})
               </button>
@@ -787,14 +843,14 @@ export default function App({ langCode }) {
             {quizOptions.map(opt=>{
               let bg="rgba(255,255,255,0.07)";
               if(quizAnswer!==null){if(opt.id===current.id)bg="#27ae60";else if(opt.id===quizAnswer)bg="#e94560";}
-              return <button key={opt.id} onClick={()=>handleAnswer(opt)} style={{padding:"12px 12px",borderRadius:10,border:"1px solid rgba(255,255,255,0.1)",background:bg,color:"#fff",fontSize:14,fontWeight:600,cursor:quizAnswer?"default":"pointer",transition:"background .25s"}}>{opt.naam}</button>;
+              return <button key={opt.id} onClick={()=>handleAnswer(opt)} style={{padding:"12px 12px",borderRadius:10,border:"1px solid rgba(255,255,255,0.1)",background:bg,color:"#fff",fontSize:14,fontWeight:600,cursor:quizAnswer?"default":"pointer",transition:"background .25s"}}>{getCountryName(opt.naam, langCode)}</button>;
             })}
           </div>
           {quizAnswer !== null && (
             <div style={{textAlign:"center"}}>
-              {isTimeout ? <p style={{color:"#f1c40f",fontWeight:700,fontSize:14,margin:"0 0 10px"}}>⏰ {t.timeout} <strong>{current.naam}</strong></p>
+              {isTimeout ? <p style={{color:"#f1c40f",fontWeight:700,fontSize:14,margin:"0 0 10px"}}>⏰ {t.timeout} <strong>{getCountryName(current.naam, langCode)}</strong></p>
                : isCorrect ? <p style={{color:"#27ae60",fontWeight:700,fontSize:14,margin:"0 0 10px"}}>✓ {t.correct} {countdown??0} {countdown===1?t.second:t.seconds}...</p>
-               : <p style={{color:"#e94560",fontWeight:700,fontSize:14,margin:"0 0 10px"}}>✗ {t.wrong} <strong>{current.naam}</strong></p>}
+               : <p style={{color:"#e94560",fontWeight:700,fontSize:14,margin:"0 0 10px"}}>✗ {t.wrong} <strong>{getCountryName(current.naam, langCode)}</strong></p>}
               <button style={{...st.btn(true),padding:"10px 26px",fontSize:14}} onClick={nextQuestion}>
                 {quizIndex+1 < quizList.length ? t.next : t.viewResult}
               </button>
@@ -897,8 +953,8 @@ export default function App({ langCode }) {
           <div style={st.grid}>
             {filtered.map(f=>(
               <div key={f.id} style={st.card} onClick={()=>setSelected(f)}>
-                <img src={f.vlag} alt={f.naam} style={{width:"100%",aspectRatio:"3/2",objectFit:"cover",borderRadius:6,marginBottom:8,background:"rgba(255,255,255,0.04)"}} loading="lazy"/>
-                <div style={{fontSize:12,fontWeight:600,textAlign:"center",color:"#ddd"}}>{f.naam}</div>
+                <img src={f.vlag} alt={getCountryName(f.naam, langCode)} style={{width:"100%",aspectRatio:"3/2",objectFit:"cover",borderRadius:6,marginBottom:8,background:"rgba(255,255,255,0.04)"}} loading="lazy"/>
+                <div style={{fontSize:12,fontWeight:600,textAlign:"center",color:"#ddd"}}>{getCountryName(f.naam, langCode)}</div>
                 <div style={{textAlign:"center",fontSize:10,color:"#555",marginTop:3}}>{contLabel(f.continent)}</div>
               </div>
             ))}
@@ -909,8 +965,8 @@ export default function App({ langCode }) {
       {selected && (
         <div style={st.modal} onClick={()=>setSelected(null)}>
           <div style={st.box} onClick={e=>e.stopPropagation()}>
-            <img src={selected.vlag} alt={selected.naam} style={{width:"100%",borderRadius:10,marginBottom:18,aspectRatio:"3/2",objectFit:"contain",background:"rgba(255,255,255,0.04)"}}/>
-            <h2 style={{margin:"0 0 6px",fontSize:22}}>{selected.naam}</h2>
+            <img src={selected.vlag} alt={getCountryName(selected.naam, langCode)} style={{width:"100%",borderRadius:10,marginBottom:18,aspectRatio:"3/2",objectFit:"contain",background:"rgba(255,255,255,0.04)"}}/>
+            <h2 style={{margin:"0 0 6px",fontSize:22}}>{getCountryName(selected.naam, langCode)}</h2>
             <p style={{color:"#aaa",margin:"0 0 5px",fontSize:13}}>🏛 {t.capital}: <strong style={{color:"#fff"}}>{selected.hoofdstad}</strong></p>
             <p style={{color:"#aaa",margin:"0 0 10px",fontSize:13}}>🌍 {t.continent}: <strong style={{color:"#fff"}}>{contLabel(selected.continent)}</strong></p>
             <p style={{color:"#555",margin:"0 0 6px",fontSize:11}}>{t.colors}:</p>
