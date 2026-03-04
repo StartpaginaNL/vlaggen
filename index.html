@@ -1,66 +1,81 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Primary SEO -->
-    <title>Vlaggenquiz – Vlaggen Leren, Oefenen & Spelen</title>
-    <meta name="description" content="Vlaggenquiz: leer en oefen de vlaggen van alle 190 landen! Speel solo of doe een 2-speler duel. Hoe sneller je antwoordt, hoe meer punten. Gratis vlaggen spel voor alle leeftijden." />
-    <meta name="keywords" content="vlaggen spel, vlaggen oefenen, vlaggen leren, vlaggenquiz, landen vlaggen, vlaggen quiz, aardrijkskunde quiz, vlaggen herkennen, wereld vlaggen, vlaggen 2 spelers" />
-    <meta name="author" content="Vlaggenquiz" />
+    <!-- Default SEO (English / homepage) - overridden dynamically per language -->
+    <title>Flag Quiz – Learn, Practice & Play World Flags</title>
+    <meta name="description" content="Free flag quiz game for all ages. Learn and practice the flags of all 190 countries. Play solo or 2-player duel. The faster you answer, the more points you score!" />
+    <meta name="keywords" content="flag quiz, learn flags, flag game, world flags, geography quiz, flags practice, country flags" />
     <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://vlaggenquiz.nl/" />
+    <link rel="canonical" href="https://flagquiz.io/" />
 
-    <!-- Open Graph (social sharing) -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://vlaggenquiz.nl/" />
-    <meta property="og:title" content="Vlaggenquiz – Vlaggen Leren, Oefenen & Spelen" />
-    <meta property="og:description" content="Leer de vlaggen van alle 190 landen! Solo quiz of 2-speler duel. Sneller antwoorden = meer punten. Gratis vlaggen spel." />
-    <meta property="og:locale" content="nl_NL" />
+    <!-- hreflang for all 11 language versions -->
+    <link rel="alternate" hreflang="en"    href="https://flagquiz.io/" />
+    <link rel="alternate" hreflang="nl"    href="https://flagquiz.io/nl" />
+    <link rel="alternate" hreflang="de"    href="https://flagquiz.io/de" />
+    <link rel="alternate" hreflang="fr"    href="https://flagquiz.io/fr" />
+    <link rel="alternate" hreflang="es"    href="https://flagquiz.io/es" />
+    <link rel="alternate" hreflang="pt"    href="https://flagquiz.io/pt" />
+    <link rel="alternate" hreflang="it"    href="https://flagquiz.io/it" />
+    <link rel="alternate" hreflang="tr"    href="https://flagquiz.io/tr" />
+    <link rel="alternate" hreflang="ar"    href="https://flagquiz.io/ar" />
+    <link rel="alternate" hreflang="zh"    href="https://flagquiz.io/zh" />
+    <link rel="alternate" hreflang="hi"    href="https://flagquiz.io/hi" />
+    <link rel="alternate" hreflang="x-default" href="https://flagquiz.io/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type"        content="website" />
+    <meta property="og:url"         content="https://flagquiz.io/" />
+    <meta property="og:title"       content="Flag Quiz – Learn, Practice & Play World Flags" />
+    <meta property="og:description" content="Free flag quiz: learn the flags of 190 countries! Solo or 2-player duel with timer and leaderboard." />
+    <meta property="og:locale"      content="en_US" />
+    <meta property="og:locale:alternate" content="nl_NL" />
+    <meta property="og:locale:alternate" content="de_DE" />
+    <meta property="og:locale:alternate" content="fr_FR" />
+    <meta property="og:locale:alternate" content="es_ES" />
 
     <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Vlaggenquiz – Vlaggen Leren & Oefenen" />
-    <meta name="twitter:description" content="Test je kennis van wereldvlaggen! 190 landen, timer, punten en klassement." />
+    <meta name="twitter:card"        content="summary" />
+    <meta name="twitter:title"       content="Flag Quiz – Learn & Practice World Flags" />
+    <meta name="twitter:description" content="190 countries, timer scoring, 2-player duel. Free!" />
 
-    <!-- Structured Data: WebSite + Game -->
+    <!-- Structured Data: Website -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      "name": "Vlaggenquiz",
-      "url": "https://vlaggenquiz.nl/",
-      "description": "Leer en oefen de vlaggen van alle 190 landen. Gratis online vlaggen spel voor solo en 2 spelers.",
-      "inLanguage": "nl",
+      "name": "Flag Quiz",
+      "url": "https://flagquiz.io/",
+      "description": "Free online flag quiz to learn and practice world flags. 190 countries, solo and 2-player modes.",
+      "inLanguage": ["en","nl","de","fr","es","pt","it","tr","ar","zh","hi"],
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://vlaggenquiz.nl/?q={search_term_string}",
+        "target": "https://flagquiz.io/?q={search_term_string}",
         "query-input": "required name=search_term_string"
       }
     }
     </script>
+    <!-- Structured Data: Game -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Game",
-      "name": "Vlaggenquiz",
-      "url": "https://vlaggenquiz.nl/",
-      "description": "Online vlaggen spel: leer vlaggen oefenen en herkennen. Speel solo of met 2 spelers. 190 landen, timer en topscores.",
-      "genre": ["Educational", "Quiz", "Geography"],
+      "name": "Flag Quiz",
+      "url": "https://flagquiz.io/",
+      "description": "Online flag quiz game: learn and practice world flags. Play solo or with 2 players. 190 countries, timer scoring, leaderboard.",
+      "genre": ["Educational","Quiz","Geography"],
       "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 2 },
-      "inLanguage": "nl",
       "isAccessibleForFree": true,
-      "educationalUse": ["practice", "self-assessment"],
-      "about": {
-        "@type": "Thing",
-        "name": "Wereldvlaggen",
-        "description": "Vlaggen van alle 190 landen ter wereld"
-      }
+      "inLanguage": ["en","nl","de","fr","es","pt","it","tr","ar","zh","hi"],
+      "educationalUse": ["practice","self-assessment"],
+      "about": { "@type": "Thing", "name": "World Flags", "description": "Flags of all 190 countries" }
     }
     </script>
 
     <style>
+      *, *::before, *::after { box-sizing: border-box; }
       body { margin: 0; background: #0a0e1a; }
       #root { min-height: 100vh; }
     </style>
