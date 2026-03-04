@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 
 const FLAGS = [
   {id:1,naam:"Nederland",continent:"Europa",hoofdstad:"Amsterdam",vlag:"https://upload.wikimedia.org/wikipedia/commons/2/20/Flag_of_the_Netherlands.svg",symbool:false,kleuren:["rood","wit","blauw"]},
@@ -206,8 +206,7 @@ function shuffle(arr) {
 
 function getOptions(correct, all) {
   const pool = all.filter(f => f.id !== correct.id);
-  const wrong = shuffle(pool).slice(0, 3);
-  return shuffle([correct, ...wrong]);
+  return shuffle([correct, ...shuffle(pool).slice(0, 3)]);
 }
 
 export default function App() {
@@ -215,25 +214,47 @@ export default function App() {
   const [continent, setContinent] = useState("Alle");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
-
-  // Quiz state
   const [quizList, setQuizList] = useState([]);
   const [quizIndex, setQuizIndex] = useState(0);
   const [quizOptions, setQuizOptions] = useState([]);
   const [quizAnswer, setQuizAnswer] = useState(null);
   const [score, setScore] = useState(0);
   const [quizDone, setQuizDone] = useState(false);
+  const [countdown, setCountdown] = useState(null);
 
-  const filtered = useMemo(() => {
-    return FLAGS.filter(f => {
-      const matchC = continent === "Alle" || f.continent === continent;
-      const matchS = f.naam.toLowerCase().includes(search.toLowerCase());
-      return matchC && matchS;
+  const filtered = useMemo(() => FLAGS.filter(f => {
+    const matchC = continent === "Alle" || f.continent === continent;
+    const matchS = f.naam.toLowerCase().includes(search.toLowerCase());
+    return matchC && matchS;
+  }), [continent, search]);
+
+  const pool = useMemo(() =>
+    continent === "Alle" ? FLAGS : FLAGS.filter(f => f.continent === continent),
+    [continent]
+  );
+
+  const nextQuestion = useCallback(() => {
+    setCountdown(null);
+    setQuizIndex(prev => {
+      const next = prev + 1;
+      if (next >= quizList.length) { setQuizDone(true); return prev; }
+      setQuizOptions(getOptions(quizList[next], pool));
+      setQuizAnswer(null);
+      return next;
     });
-  }, [continent, search]);
+  }, [quizList, pool]);
+
+  // Auto-advance 3 seconden na goed antwoord
+  useEffect(() => {
+    if (quizAnswer === null || quizList.length === 0) return;
+    if (quizAnswer !== quizList[quizIndex].id) return;
+    setCountdown(3);
+    const iv = setInterval(() => setCountdown(c => c > 1 ? c - 1 : null), 1000);
+    const to = setTimeout(nextQuestion, 3000);
+    return () => { clearInterval(iv); clearTimeout(to); };
+  }, [quizAnswer, quizIndex, quizList, nextQuestion]);
 
   function startQuiz() {
-    const pool = continent === "Alle" ? FLAGS : FLAGS.filter(f => f.continent === continent);
     const list = shuffle(pool).slice(0, 20);
     setQuizList(list);
     setQuizIndex(0);
@@ -241,83 +262,69 @@ export default function App() {
     setQuizAnswer(null);
     setScore(0);
     setQuizDone(false);
+    setCountdown(null);
     setMode("quiz");
   }
 
   function handleAnswer(flag) {
     if (quizAnswer !== null) return;
-    setQuizAnswer(flag.id);
     if (flag.id === quizList[quizIndex].id) setScore(s => s + 1);
+    setQuizAnswer(flag.id);
   }
 
-  function nextQuestion() {
-    const pool = continent === "Alle" ? FLAGS : FLAGS.filter(f => f.continent === continent);
-    const next = quizIndex + 1;
-    if (next >= quizList.length) {
-      setQuizDone(true);
-    } else {
-      setQuizIndex(next);
-      setQuizOptions(getOptions(quizList[next], pool));
-      setQuizAnswer(null);
-    }
-  }
-
-  const styles = {
-    app: { minHeight: "100vh", background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)", color: "#fff", fontFamily: "'Segoe UI', sans-serif" },
-    header: { padding: "20px 24px", borderBottom: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 },
-    logo: { fontSize: 28, fontWeight: 700, cursor: "pointer", background: "linear-gradient(90deg,#e94560,#0f3460)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" },
-    nav: { display: "flex", gap: 10 },
-    btn: (active) => ({ padding: "8px 18px", borderRadius: 8, border: "none", cursor: "pointer", fontWeight: 600, fontSize: 14, background: active ? "#e94560" : "rgba(255,255,255,0.1)", color: "#fff", transition: "all .2s" }),
-    controls: { padding: "16px 24px", display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" },
-    input: { padding: "8px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.08)", color: "#fff", fontSize: 14, outline: "none", width: 200 },
-    select: { padding: "8px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.2)", background: "rgba(30,40,70,0.9)", color: "#fff", fontSize: 14, outline: "none" },
-    grid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 16, padding: "0 24px 32px" },
-    card: (hover) => ({ background: "rgba(255,255,255,0.07)", borderRadius: 12, padding: 16, cursor: "pointer", transition: "all .2s", border: "1px solid rgba(255,255,255,0.1)", transform: hover ? "translateY(-4px)" : "none", boxShadow: hover ? "0 8px 24px rgba(0,0,0,0.3)" : "none" }),
-    flag: { width: "100%", aspectRatio: "3/2", objectFit: "cover", borderRadius: 6, marginBottom: 10, background: "rgba(255,255,255,0.05)" },
-    countryName: { fontSize: 13, fontWeight: 600, textAlign: "center", color: "#e0e0e0" },
-    modal: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, padding: 20 },
-    modalBox: { background: "#1a1a2e", borderRadius: 16, padding: 32, maxWidth: 420, width: "100%", border: "1px solid rgba(255,255,255,0.15)" },
-    tag: (c) => { const colors = { rood:"#e94560",blauw:"#4a90d9",groen:"#27ae60",geel:"#f1c40f",wit:"#ecf0f1",zwart:"#34495e",oranje:"#e67e22",lichtblauw:"#5dade2",meerkleurig:"#9b59b6" }; return { display:"inline-block", padding:"2px 10px", borderRadius:20, fontSize:11, fontWeight:600, background:colors[c]||"#555", color: c==="wit"||c==="geel"||c==="lichtblauw" ? "#222" : "#fff", margin:"2px" }; },
+  const st = {
+    app: { minHeight:"100vh", background:"linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)", color:"#fff", fontFamily:"'Segoe UI',sans-serif" },
+    header: { padding:"20px 24px", borderBottom:"1px solid rgba(255,255,255,0.1)", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 },
+    logo: { fontSize:28, fontWeight:700, cursor:"pointer", background:"linear-gradient(90deg,#e94560,#4a90d9)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" },
+    btn: (a) => ({ padding:"8px 18px", borderRadius:8, border:"none", cursor:"pointer", fontWeight:600, fontSize:14, background: a ? "#e94560" : "rgba(255,255,255,0.1)", color:"#fff", transition:"all .2s" }),
+    input: { padding:"8px 14px", borderRadius:8, border:"1px solid rgba(255,255,255,0.2)", background:"rgba(255,255,255,0.08)", color:"#fff", fontSize:14, outline:"none", width:200 },
+    select: { padding:"8px 14px", borderRadius:8, border:"1px solid rgba(255,255,255,0.2)", background:"rgba(30,40,70,0.9)", color:"#fff", fontSize:14, outline:"none" },
+    grid: { display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))", gap:16, padding:"0 24px 32px" },
+    card: { background:"rgba(255,255,255,0.07)", borderRadius:12, padding:16, cursor:"pointer", border:"1px solid rgba(255,255,255,0.1)", transition:"transform .2s" },
+    modal: { position:"fixed", inset:0, background:"rgba(0,0,0,0.7)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:100, padding:20 },
+    box: { background:"#1a1a2e", borderRadius:16, padding:32, maxWidth:420, width:"100%", border:"1px solid rgba(255,255,255,0.15)" },
+    tag: (c) => { const m={rood:"#e94560",blauw:"#4a90d9",groen:"#27ae60",geel:"#f1c40f",wit:"#ecf0f1",zwart:"#34495e",oranje:"#e67e22",lichtblauw:"#5dade2",meerkleurig:"#9b59b6"}; return {display:"inline-block",padding:"2px 10px",borderRadius:20,fontSize:11,fontWeight:600,background:m[c]||"#555",color:["wit","geel","lichtblauw"].includes(c)?"#222":"#fff",margin:"2px"}; },
   };
 
-  if (mode === "quiz") {
-    if (quizDone) {
-      const pct = Math.round((score / quizList.length) * 100);
-      return (
-        <div style={styles.app}>
-          <div style={{...styles.header}}>
-            <span style={styles.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span>
-          </div>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"80vh",padding:24}}>
-            <div style={{...styles.modalBox, textAlign:"center", maxWidth:480}}>
-              <div style={{fontSize:64,marginBottom:16}}>{pct>=80?"🏆":pct>=50?"🎯":"📚"}</div>
-              <h2 style={{margin:"0 0 8px",fontSize:28}}>Quiz klaar!</h2>
-              <p style={{color:"#aaa",marginBottom:24}}>Je hebt {score} van de {quizList.length} vragen goed.</p>
-              <div style={{fontSize:48,fontWeight:700,color:"#e94560",marginBottom:24}}>{pct}%</div>
-              <div style={{display:"flex",gap:12,justifyContent:"center"}}>
-                <button style={{...styles.btn(true),padding:"12px 28px",fontSize:16}} onClick={startQuiz}>Opnieuw</button>
-                <button style={{...styles.btn(false),padding:"12px 28px",fontSize:16}} onClick={() => setMode("browse")}>Bladeren</button>
-              </div>
+  // Quiz klaar
+  if (mode === "quiz" && quizDone) {
+    const pct = Math.round((score / quizList.length) * 100);
+    return (
+      <div style={st.app}>
+        <div style={st.header}><span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span></div>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"80vh",padding:24}}>
+          <div style={{...st.box,textAlign:"center",maxWidth:480}}>
+            <div style={{fontSize:64,marginBottom:16}}>{pct>=80?"🏆":pct>=50?"🎯":"📚"}</div>
+            <h2 style={{margin:"0 0 8px",fontSize:28}}>Quiz klaar!</h2>
+            <p style={{color:"#aaa",marginBottom:24}}>Je hebt {score} van de {quizList.length} vragen goed.</p>
+            <div style={{fontSize:48,fontWeight:700,color:"#e94560",marginBottom:24}}>{pct}%</div>
+            <div style={{display:"flex",gap:12,justifyContent:"center"}}>
+              <button style={{...st.btn(true),padding:"12px 28px",fontSize:16}} onClick={startQuiz}>Opnieuw</button>
+              <button style={{...st.btn(false),padding:"12px 28px",fontSize:16}} onClick={() => setMode("browse")}>Bladeren</button>
             </div>
           </div>
         </div>
-      );
-    }
+      </div>
+    );
+  }
 
+  // Quiz
+  if (mode === "quiz" && quizList.length > 0) {
     const current = quizList[quizIndex];
+    const isCorrect = quizAnswer === current.id;
     return (
-      <div style={styles.app}>
-        <div style={styles.header}>
-          <span style={styles.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span>
+      <div style={st.app}>
+        <div style={st.header}>
+          <span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span>
           <div style={{display:"flex",alignItems:"center",gap:16}}>
             <span style={{color:"#aaa",fontSize:14}}>Vraag {quizIndex+1}/{quizList.length}</span>
             <span style={{color:"#e94560",fontWeight:700}}>Score: {score}</span>
-            <button style={styles.btn(false)} onClick={() => setMode("home")}>Stoppen</button>
+            <button style={st.btn(false)} onClick={() => setMode("home")}>Stoppen</button>
           </div>
         </div>
-        <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"40px 24px",gap:32}}>
-          <div style={{background:"rgba(255,255,255,0.05)",borderRadius:16,padding:32,width:"100%",maxWidth:500,textAlign:"center"}}>
-            <p style={{color:"#aaa",margin:"0 0 16px",fontSize:15}}>Van welk land is deze vlag?</p>
+        <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"40px 24px",gap:28}}>
+          <div style={{background:"rgba(255,255,255,0.05)",borderRadius:16,padding:28,width:"100%",maxWidth:500,textAlign:"center"}}>
+            <p style={{color:"#aaa",margin:"0 0 14px",fontSize:15}}>Van welk land is deze vlag?</p>
             <img src={current.vlag} alt="vlag" style={{width:"100%",maxWidth:300,aspectRatio:"3/2",objectFit:"contain",borderRadius:8,background:"rgba(255,255,255,0.05)"}} />
           </div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,width:"100%",maxWidth:500}}>
@@ -328,29 +335,42 @@ export default function App() {
                 else if (opt.id === quizAnswer) bg = "#e94560";
               }
               return (
-                <button key={opt.id} onClick={() => handleAnswer(opt)} style={{padding:"14px 16px",borderRadius:10,border:"1px solid rgba(255,255,255,0.15)",background:bg,color:"#fff",fontSize:15,fontWeight:600,cursor:"pointer",transition:"all .2s"}}>
+                <button key={opt.id} onClick={() => handleAnswer(opt)}
+                  style={{padding:"14px 16px",borderRadius:10,border:"1px solid rgba(255,255,255,0.15)",background:bg,color:"#fff",fontSize:15,fontWeight:600,cursor:quizAnswer?"default":"pointer",transition:"background .3s"}}>
                   {opt.naam}
                 </button>
               );
             })}
           </div>
           {quizAnswer !== null && (
-            <button style={{...styles.btn(true),padding:"12px 32px",fontSize:16}} onClick={nextQuestion}>
-              {quizIndex + 1 < quizList.length ? "Volgende →" : "Resultaat bekijken"}
-            </button>
+            <div style={{textAlign:"center"}}>
+              {isCorrect ? (
+                <p style={{color:"#27ae60",fontWeight:700,fontSize:16,margin:"0 0 12px"}}>
+                  ✓ Goed! Volgende vraag over {countdown ?? 0} {countdown === 1 ? "seconde" : "seconden"}...
+                </p>
+              ) : (
+                <p style={{color:"#e94560",fontWeight:700,fontSize:16,margin:"0 0 12px"}}>
+                  ✗ Fout! Het was <strong>{current.naam}</strong>
+                </p>
+              )}
+              <button style={{...st.btn(true),padding:"12px 32px",fontSize:16}} onClick={nextQuestion}>
+                {quizIndex + 1 < quizList.length ? "Volgende →" : "Resultaat bekijken"}
+              </button>
+            </div>
           )}
         </div>
       </div>
     );
   }
 
+  // Home & Browse
   return (
-    <div style={styles.app}>
-      <div style={styles.header}>
-        <span style={styles.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span>
-        <div style={styles.nav}>
-          <button style={styles.btn(mode==="browse")} onClick={() => setMode("browse")}>Bladeren</button>
-          <button style={styles.btn(false)} onClick={startQuiz}>Quiz spelen</button>
+    <div style={st.app}>
+      <div style={st.header}>
+        <span style={st.logo} onClick={() => setMode("home")}>🌍 Vlaggenwijzer</span>
+        <div style={{display:"flex",gap:10}}>
+          <button style={st.btn(mode==="browse")} onClick={() => setMode("browse")}>Bladeren</button>
+          <button style={st.btn(false)} onClick={startQuiz}>Quiz spelen</button>
         </div>
       </div>
 
@@ -358,12 +378,12 @@ export default function App() {
         <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"80vh",padding:24,textAlign:"center"}}>
           <div style={{fontSize:80,marginBottom:24}}>🌍</div>
           <h1 style={{fontSize:48,margin:"0 0 16px",fontWeight:800}}>Vlaggenwijzer</h1>
-          <p style={{color:"#aaa",fontSize:18,maxWidth:500,marginBottom:48}}>Ontdek de vlaggen van alle 190 landen ter wereld. Blader door het archief of test je kennis met een quiz!</p>
+          <p style={{color:"#aaa",fontSize:18,maxWidth:500,marginBottom:48}}>Ontdek de vlaggen van alle 190 landen. Blader door het archief of test je kennis met een quiz!</p>
           <div style={{display:"flex",gap:16,flexWrap:"wrap",justifyContent:"center"}}>
-            <button style={{...styles.btn(true),padding:"16px 36px",fontSize:18,borderRadius:12}} onClick={() => setMode("browse")}>🗺 Bladeren</button>
-            <button style={{...styles.btn(false),padding:"16px 36px",fontSize:18,borderRadius:12,background:"rgba(255,255,255,0.12)"}} onClick={startQuiz}>🎯 Quiz spelen</button>
+            <button style={{...st.btn(true),padding:"16px 36px",fontSize:18,borderRadius:12}} onClick={() => setMode("browse")}>🗺 Bladeren</button>
+            <button style={{...st.btn(false),padding:"16px 36px",fontSize:18,borderRadius:12,background:"rgba(255,255,255,0.12)"}} onClick={startQuiz}>🎯 Quiz spelen</button>
           </div>
-          <div style={{marginTop:48,display:"flex",gap:32,color:"#666"}}>
+          <div style={{marginTop:48,display:"flex",gap:24,color:"#666",flexWrap:"wrap",justifyContent:"center"}}>
             {CONTINENTEN.filter(c => c !== "Alle").map(c => (
               <span key={c} style={{fontSize:13}}>{FLAGS.filter(f=>f.continent===c).length} {c}</span>
             ))}
@@ -373,18 +393,18 @@ export default function App() {
 
       {mode === "browse" && (
         <>
-          <div style={styles.controls}>
-            <input style={styles.input} placeholder="🔍 Zoeken..." value={search} onChange={e => setSearch(e.target.value)} />
-            <select style={styles.select} value={continent} onChange={e => setContinent(e.target.value)}>
+          <div style={{padding:"16px 24px",display:"flex",gap:12,flexWrap:"wrap",alignItems:"center"}}>
+            <input style={st.input} placeholder="🔍 Zoeken..." value={search} onChange={e => setSearch(e.target.value)} />
+            <select style={st.select} value={continent} onChange={e => setContinent(e.target.value)}>
               {CONTINENTEN.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
             <span style={{color:"#aaa",fontSize:14}}>{filtered.length} landen</span>
           </div>
-          <div style={styles.grid}>
+          <div style={st.grid}>
             {filtered.map(f => (
-              <div key={f.id} style={styles.card(false)} onClick={() => setSelected(f)}>
-                <img src={f.vlag} alt={f.naam} style={styles.flag} loading="lazy" />
-                <div style={styles.countryName}>{f.naam}</div>
+              <div key={f.id} style={st.card} onClick={() => setSelected(f)}>
+                <img src={f.vlag} alt={f.naam} style={{width:"100%",aspectRatio:"3/2",objectFit:"cover",borderRadius:6,marginBottom:10,background:"rgba(255,255,255,0.05)"}} loading="lazy" />
+                <div style={{fontSize:13,fontWeight:600,textAlign:"center",color:"#e0e0e0"}}>{f.naam}</div>
                 <div style={{textAlign:"center",fontSize:11,color:"#888",marginTop:4}}>{f.continent}</div>
               </div>
             ))}
@@ -393,16 +413,16 @@ export default function App() {
       )}
 
       {selected && (
-        <div style={styles.modal} onClick={() => setSelected(null)}>
-          <div style={styles.modalBox} onClick={e => e.stopPropagation()}>
+        <div style={st.modal} onClick={() => setSelected(null)}>
+          <div style={st.box} onClick={e => e.stopPropagation()}>
             <img src={selected.vlag} alt={selected.naam} style={{width:"100%",borderRadius:10,marginBottom:20,aspectRatio:"3/2",objectFit:"contain",background:"rgba(255,255,255,0.05)"}} />
             <h2 style={{margin:"0 0 8px",fontSize:24}}>{selected.naam}</h2>
-            <p style={{color:"#aaa",margin:"0 0 16px",fontSize:15}}>🏛 Hoofdstad: <strong style={{color:"#fff"}}>{selected.hoofdstad}</strong></p>
+            <p style={{color:"#aaa",margin:"0 0 8px",fontSize:15}}>🏛 Hoofdstad: <strong style={{color:"#fff"}}>{selected.hoofdstad}</strong></p>
             <p style={{color:"#aaa",margin:"0 0 12px",fontSize:15}}>🌍 Continent: <strong style={{color:"#fff"}}>{selected.continent}</strong></p>
             <p style={{color:"#aaa",margin:"0 0 8px",fontSize:13}}>Kleuren:</p>
-            <div>{selected.kleuren.map(k => <span key={k} style={styles.tag(k)}>{k}</span>)}</div>
+            <div>{selected.kleuren.map(k => <span key={k} style={st.tag(k)}>{k}</span>)}</div>
             {selected.symbool && <p style={{color:"#888",fontSize:12,marginTop:12}}>✦ Heeft symbool of wapen op de vlag</p>}
-            <button style={{...styles.btn(false),marginTop:20,width:"100%"}} onClick={() => setSelected(null)}>Sluiten</button>
+            <button style={{...st.btn(false),marginTop:20,width:"100%"}} onClick={() => setSelected(null)}>Sluiten</button>
           </div>
         </div>
       )}
