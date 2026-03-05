@@ -1,16 +1,17 @@
-import { put, get, head } from "@vercel/blob";
+import { put, head } from "@vercel/blob";
 
 const BLOB_KEY = "flagquiz/scores.json";
 const TOKEN    = process.env.BLOB_READ_WRITE_TOKEN;
 
 async function readScores() {
   try {
-    await head(BLOB_KEY, { token: TOKEN });
-    const { stream } = await get(BLOB_KEY, { token: TOKEN });
-    const chunks = [];
-    for await (const chunk of stream) chunks.push(chunk);
-    const text = Buffer.concat(chunks).toString("utf8");
-    return JSON.parse(text);
+    const info = await head(BLOB_KEY, { token: TOKEN });
+    // For private blobs, fetch using the downloadUrl with the token in the header
+    const res = await fetch(info.downloadUrl, {
+      headers: { Authorization: `Bearer ${TOKEN}` },
+    });
+    if (!res.ok) return [];
+    return await res.json();
   } catch {
     return [];
   }
