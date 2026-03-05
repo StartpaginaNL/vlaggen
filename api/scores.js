@@ -1,14 +1,14 @@
-import { put, head } from "@vercel/blob";
+import { put, get } from "@vercel/blob";
 
 const BLOB_KEY = "flagquiz/scores.json";
 const TOKEN    = process.env.BLOB_READ_WRITE_TOKEN;
 
 async function readScores() {
   try {
-    const info = await head(BLOB_KEY, { token: TOKEN });
-    const res = await fetch(info.url);
-    if (!res.ok) return [];
-    return await res.json();
+    const { stream } = await get(BLOB_KEY, { token: TOKEN });
+    const chunks = [];
+    for await (const chunk of stream) chunks.push(chunk);
+    return JSON.parse(Buffer.concat(chunks).toString("utf8"));
   } catch {
     return [];
   }
@@ -16,7 +16,7 @@ async function readScores() {
 
 async function writeScores(scores) {
   await put(BLOB_KEY, JSON.stringify(scores), {
-    access: "public",
+    access: "private",
     token: TOKEN,
     addRandomSuffix: false,
     allowOverwrite: true,
