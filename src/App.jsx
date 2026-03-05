@@ -435,10 +435,7 @@ function Leaderboard({ t, onClose }) {
     <div style={{position:"fixed",inset:0,background:"var(--bg-overlay)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:150,padding:20}}>
       <div style={{background:"var(--modal-bg)",borderRadius:20,padding:32,maxWidth:480,width:"100%",border:"1px solid var(--border)"}}>
         <h2 style={{margin:"0 0 4px",fontSize:"var(--font-xl)",textAlign:"center"}}>🏆 {t.leaderboardTitle}</h2>
-        {USE_SUPABASE
-          ? <p style={{textAlign:"center",color:"var(--text-secondary)",fontSize:"var(--font-xs)",margin:"0 0 20px"}}>Global leaderboard</p>
-          : <p style={{textAlign:"center",color:"var(--accent-yellow)",fontSize:"var(--font-xs)",margin:"0 0 20px"}}>⚠ Local only — add Supabase to go global</p>
-        }
+        <p style={{textAlign:"center",color:"var(--text-secondary)",fontSize:"var(--font-xs)",margin:"0 0 20px"}}>Global leaderboard</p>
 
         {/* Tabs */}
         <div style={{display:"flex",gap:8,marginBottom:20}}>
