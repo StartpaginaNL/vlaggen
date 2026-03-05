@@ -1,13 +1,16 @@
 import { put, get } from "@vercel/blob";
+import { Readable } from "node:stream";
 
 const BLOB_KEY = "flagquiz/scores.json";
 const TOKEN    = process.env.BLOB_READ_WRITE_TOKEN;
 
 async function readScores() {
   try {
-    const { stream } = await get(BLOB_KEY, { token: TOKEN });
+    const result = await get(BLOB_KEY, { token: TOKEN, access: "private" });
+    if (result?.statusCode !== 200 || !result.stream) return [];
+    // Convert web ReadableStream to a Buffer
     const chunks = [];
-    for await (const chunk of stream) chunks.push(chunk);
+    for await (const chunk of Readable.fromWeb(result.stream)) chunks.push(chunk);
     return JSON.parse(Buffer.concat(chunks).toString("utf8"));
   } catch {
     return [];
