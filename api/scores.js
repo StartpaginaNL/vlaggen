@@ -6,10 +6,7 @@ const TOKEN    = process.env.BLOB_READ_WRITE_TOKEN;
 async function readScores() {
   try {
     const info = await head(BLOB_KEY, { token: TOKEN });
-    // For private blobs, fetch using the downloadUrl with the token in the header
-    const res = await fetch(info.downloadUrl, {
-      headers: { Authorization: `Bearer ${TOKEN}` },
-    });
+    const res = await fetch(info.url);
     if (!res.ok) return [];
     return await res.json();
   } catch {
@@ -19,7 +16,7 @@ async function readScores() {
 
 async function writeScores(scores) {
   await put(BLOB_KEY, JSON.stringify(scores), {
-    access: "private",
+    access: "public",
     token: TOKEN,
     addRandomSuffix: false,
     allowOverwrite: true,
