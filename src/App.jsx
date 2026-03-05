@@ -218,14 +218,49 @@ function calcPoints(timeLeft) {
 }
 
 // ── STORAGE ──
-function loadRecords(lang) {
-  try { return JSON.parse(localStorage.getItem(`flagquiz_records_${lang}`) || "[]"); } catch { return []; }
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const USE_SUPABASE  = !!(SUPABASE_URL && SUPABASE_KEY);
+
+async function fetchLeaderboard() {
+  if (!USE_SUPABASE) return { solo: [], duel: [] };
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/scores?select=name,score,mode,created_at&order=score.desc&limit=100`,
+      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+    );
+    const rows = await res.json();
+    if (!Array.isArray(rows)) return { solo: [], duel: [] };
+    const fmt = r => ({ name: r.name, score: r.score, mode: r.mode, date: new Date(r.created_at).toLocaleDateString() });
+    return {
+      solo: rows.filter(r => r.mode === "solo").slice(0, 20).map(fmt),
+      duel: rows.filter(r => r.mode === "duel").slice(0, 20).map(fmt),
+    };
+  } catch { return { solo: [], duel: [] }; }
 }
-function saveRecord(lang, name, score, mode) {
-  const records = loadRecords(lang);
-  records.push({ name, score, mode, date: new Date().toLocaleDateString() });
-  records.sort((a, b) => b.score - a.score);
-  localStorage.setItem(`flagquiz_records_${lang}`, JSON.stringify(records.slice(0, 20)));
+
+async function saveRecord(name, score, mode) {
+  // Always save locally too
+  try {
+    const key = "flagquiz_local";
+    const local = JSON.parse(localStorage.getItem(key) || "[]");
+    local.push({ name, score, mode, date: new Date().toLocaleDateString() });
+    localStorage.setItem(key, JSON.stringify(local.slice(-50)));
+  } catch {}
+  // Save globally if Supabase is configured
+  if (!USE_SUPABASE) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/scores`, {
+      method: "POST",
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({ name, score, mode }),
+    });
+  } catch {}
 }
 
 // ── SEO HEAD UPDATER ──
@@ -403,28 +438,57 @@ function LangSwitcher({ currentLang }) {
 }
 
 // ── LEADERBOARD ──
-function Leaderboard({ lang, t, onClose }) {
-  const records = loadRecords(lang);
-  const solo = records.filter(r => r.mode === "solo").slice(0, 8);
-  const duel = records.filter(r => r.mode === "duel").slice(0, 8);
+function Leaderboard({ t, onClose }) {
+  const [data, setData]       = useState({ solo: [], duel: [] });
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab]         = useState("solo");
+
+  useEffect(() => {
+    fetchLeaderboard().then(d => { setData(d); setLoading(false); });
+  }, []);
+
+  const list = data[tab].slice(0, 10);
+  const medal = ["🥇","🥈","🥉"];
+
   return (
     <div style={{position:"fixed",inset:0,background:"var(--bg-overlay)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:150,padding:20}}>
-      <div style={{background:"var(--modal-bg)",borderRadius:20,padding:32,maxWidth:560,width:"100%",border:"1px solid var(--border)"}}>
-        <h2 style={{margin:"0 0 24px",fontSize:"var(--font-xl)",textAlign:"center"}}>{t.leaderboardTitle}</h2>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
-          {[[t.soloTab, solo],[t.duelTab, duel]].map(([label, list]) => (
-            <div key={label}>
-              <div style={{fontWeight:700,fontSize:"var(--font-xs)",color:"var(--text-secondary)",marginBottom:10,textTransform:"uppercase",letterSpacing:1}}>{label}</div>
-              {list.length===0 && <div style={{color:"var(--text-muted)",fontSize:"var(--font-sm)"}}>{t.noScores}</div>}
-              {list.map((r,i) => (
-                <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 0",borderBottom:"1px solid var(--border)"}}>
-                  <span style={{fontSize:"var(--font-sm)"}}><span style={{color:["var(--gold)","var(--silver)","var(--bronze)"][i]||"var(--text-muted)",fontWeight:700,marginRight:6}}>{i+1}.</span>{r.name}</span>
-                  <span style={{fontWeight:700,color:"var(--accent-red)",fontSize:"var(--font-sm)"}}>{r.score.toLocaleString()}</span>
-                </div>
-              ))}
-            </div>
+      <div style={{background:"var(--modal-bg)",borderRadius:20,padding:32,maxWidth:480,width:"100%",border:"1px solid var(--border)"}}>
+        <h2 style={{margin:"0 0 4px",fontSize:"var(--font-xl)",textAlign:"center"}}>🏆 {t.leaderboardTitle}</h2>
+        {USE_SUPABASE
+          ? <p style={{textAlign:"center",color:"var(--text-secondary)",fontSize:"var(--font-xs)",margin:"0 0 20px"}}>Global leaderboard</p>
+          : <p style={{textAlign:"center",color:"var(--accent-yellow)",fontSize:"var(--font-xs)",margin:"0 0 20px"}}>⚠ Local only — add Supabase to go global</p>
+        }
+
+        {/* Tabs */}
+        <div style={{display:"flex",gap:8,marginBottom:20}}>
+          {[["solo", t.soloTab], ["duel", t.duelTab]].map(([key, label]) => (
+            <button key={key} onClick={() => setTab(key)}
+              style={{flex:1,padding:"9px",borderRadius:8,border:"none",cursor:"pointer",fontWeight:700,fontSize:"var(--font-sm)",
+                background: tab===key ? "var(--accent-red)" : "var(--btn-default-bg)",
+                color: tab===key ? "#fff" : "var(--text-secondary)"}}>
+              {label}
+            </button>
           ))}
         </div>
+
+        {/* Rows */}
+        {loading ? (
+          <div style={{textAlign:"center",padding:"32px 0",color:"var(--text-secondary)"}}>Loading…</div>
+        ) : list.length === 0 ? (
+          <div style={{textAlign:"center",padding:"32px 0",color:"var(--text-muted)",fontSize:"var(--font-sm)"}}>{t.noScores}</div>
+        ) : (
+          list.map((r, i) => (
+            <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 0",borderBottom:"1px solid var(--border)"}}>
+              <span style={{width:28,textAlign:"center",fontSize:i<3?"18px":"var(--font-sm)",fontWeight:700,color:"var(--text-muted)"}}>
+                {medal[i] || `${i+1}.`}
+              </span>
+              <span style={{flex:1,fontWeight:600,fontSize:"var(--font-sm)"}}>{r.name}</span>
+              <span style={{fontWeight:800,color:"var(--accent-yellow)",fontSize:"var(--font-base)"}}>{r.score.toLocaleString()}</span>
+              <span style={{color:"var(--text-muted)",fontSize:"var(--font-xs)"}}>{r.date}</span>
+            </div>
+          ))
+        )}
+
         <button onClick={onClose} style={{marginTop:24,width:"100%",padding:"12px",borderRadius:10,border:"none",background:"var(--btn-default-bg)",color:"var(--text-primary)",fontSize:"var(--font-sm)",fontWeight:600,cursor:"pointer"}}>{t.close}</button>
       </div>
     </div>
@@ -482,13 +546,18 @@ export default function App({ langCode }) {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
-  const [records, setRecords] = useState(() => loadRecords(langCode));
+  const [topScores, setTopScores] = useState([]);
   const [showSave, setShowSave] = useState(false);
   const [pendingScore, setPendingScore] = useState(null);
   const [pendingMode, setPendingMode] = useState(null);
 
-  // Reload records when language changes
-  useEffect(() => { setRecords(loadRecords(langCode)); }, [langCode]);
+  // Load top scores for mini leaderboard on home screen
+  useEffect(() => {
+    fetchLeaderboard().then(d => {
+      const all = [...d.solo, ...d.duel].sort((a,b) => b.score - a.score).slice(0, 5);
+      setTopScores(all);
+    });
+  }, []);
 
   // ── SOLO STATE ──
   const [quizList, setQuizList] = useState([]);
@@ -638,8 +707,12 @@ export default function App({ langCode }) {
   }
 
   function handleSave(name) {
-    saveRecord(langCode, name, pendingScore, pendingMode);
-    setRecords(loadRecords(langCode));
+    saveRecord(name, pendingScore, pendingMode);
+    // Refresh mini leaderboard
+    fetchLeaderboard().then(d => {
+      const all = [...d.solo, ...d.duel].sort((a,b) => b.score - a.score).slice(0, 5);
+      setTopScores(all);
+    });
     setShowSave(false);
   }
 
@@ -887,7 +960,7 @@ export default function App({ langCode }) {
   // ── HOME & BROWSE ──
   return (
     <div style={st.app}>
-      {showLeaderboard && <Leaderboard lang={langCode} t={t} onClose={()=>setShowLeaderboard(false)}/>}
+      {showLeaderboard && <Leaderboard t={t} onClose={()=>setShowLeaderboard(false)}/>}
 
       <div style={st.header}>
         <span style={st.logo} onClick={()=>setMode("home")}>🌍 {t.siteTitle}</span>
@@ -926,10 +999,10 @@ export default function App({ langCode }) {
           </div>
 
           {/* Mini leaderboard */}
-          {records.length > 0 && (
+          {topScores.length > 0 && (
             <div style={{background:"var(--card-bg)",borderRadius:16,padding:"18px 24px",maxWidth:380,width:"100%",border:"1px solid var(--card-border)",marginBottom:36}}>
               <div style={{fontSize:"var(--font-xs)",color:"var(--text-secondary)",marginBottom:12,fontWeight:700,textTransform:"uppercase",letterSpacing:1}}>{t.topScores}</div>
-              {records.slice(0,5).map((r,i)=>(
+              {topScores.slice(0,5).map((r,i)=>(
                 <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"1px solid var(--border)",fontSize:"var(--font-sm)"}}>
                   <span><span style={{color:["var(--gold)","var(--silver)","var(--bronze)"][i]||"var(--text-muted)",fontWeight:700,marginRight:6}}>{i+1}.</span>{r.name} <span style={{color:"var(--text-muted)",fontSize:"var(--font-xs)"}}>({r.mode})</span></span>
                   <span style={{fontWeight:700,color:"var(--accent-red)"}}>{r.score.toLocaleString()}</span>
