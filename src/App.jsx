@@ -217,25 +217,12 @@ function calcPoints(timeLeft) {
   return Math.round(10 + (timeLeft / 20) * 90);
 }
 
-// ── STORAGE ──
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const USE_SUPABASE  = !!(SUPABASE_URL && SUPABASE_KEY);
-
+// ── STORAGE (Vercel Blob via /api/scores) ──
 async function fetchLeaderboard() {
-  if (!USE_SUPABASE) return { solo: [], duel: [] };
   try {
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/scores?select=name,score,mode,created_at&order=score.desc&limit=100`,
-      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
-    );
-    const rows = await res.json();
-    if (!Array.isArray(rows)) return { solo: [], duel: [] };
-    const fmt = r => ({ name: r.name, score: r.score, mode: r.mode, date: new Date(r.created_at).toLocaleDateString() });
-    return {
-      solo: rows.filter(r => r.mode === "solo").slice(0, 20).map(fmt),
-      duel: rows.filter(r => r.mode === "duel").slice(0, 20).map(fmt),
-    };
+    const res = await fetch("/api/scores");
+    if (!res.ok) return { solo: [], duel: [] };
+    return await res.json();
   } catch { return { solo: [], duel: [] }; }
 }
 
@@ -247,17 +234,11 @@ async function saveRecord(name, score, mode) {
     local.push({ name, score, mode, date: new Date().toLocaleDateString() });
     localStorage.setItem(key, JSON.stringify(local.slice(-50)));
   } catch {}
-  // Save globally if Supabase is configured
-  if (!USE_SUPABASE) return;
+  // Save globally via API
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/scores`, {
+    await fetch("/api/scores", {
       method: "POST",
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        "Content-Type": "application/json",
-        Prefer: "return=minimal",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, score, mode }),
     });
   } catch {}
